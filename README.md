@@ -1,3 +1,40 @@
+## RehabMan Fork of TimeWalker's CodecCommander.kext
+
+This repo contains a fork of TimeWalker's original here: https://github.com/Dolnor/EAPD-Codec-Commander
+
+
+The main changes are:
+
+*** No changes currently ***
+
+At the moment, each repository is in sync.
+
+Read the commit log for an idea on contributions from Dolnor, the-darkvoid, and RehabMan.
+
+
+Future ideas:
+
+- DSDT-based configuration?
+
+
+### Download location
+
+Downloads are available on Bitbucket:
+
+https://bitbucket.org/RehabMan/os-x-eapd-codec-commander/downloads
+
+
+### Source Code:
+
+The source code is maintained at the following sites:
+
+https://github.com/RehabMan/OS-X-EAPD-Codec-Commander
+
+https://bitbucket.org/RehabMan/os-x-eapd-codec-commander
+
+
+### Original README.md follows...
+
 ## Codec Commander
 
 ### What is the purpose of this?
