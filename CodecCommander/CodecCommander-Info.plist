@@ -112,6 +112,26 @@
 				</dict>
 				<key>10ec_0269_HDA_1028_04d9</key>
 				<string>Realtek ALC269VB</string>
+				<key>Realtek ALC269 BRIX</key>
+				<dict>
+					<key>Custom Commands</key>
+					<array>
+						<dict>
+							<key>Command</key>
+							<data>AVcIgw==</data>
+							<key>Comment</key>
+							<string>0x15 SET_UNSOLICITED_ENABLE 0x83</string>
+							<key>On Init</key>
+							<false/>
+							<key>On Sleep</key>
+							<false/>
+							<key>On Wake</key>
+							<false/>
+						</dict>
+					</array>
+				</dict>
+				<key>10ec_0269_HDA_1458_fa50</key>
+				<string>Realtek ALC269 BRIX</string>
 				<key>Realtek ALC283,etc</key>
 				<dict>
 					<key>Custom Commands</key>
