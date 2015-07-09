@@ -546,9 +546,10 @@ bool CodecCommanderPowerHook::start(IOService *provider)
 
 	// don't attempt to AppleHDADriver for vendor 0x8086
 	IntelHDA intelHDA(provider, PIO);
-	if (0x8086 == (intelHDA.getCodecVendorId() >> 16))
+	Configuration config(this->getProperty(kCodecProfile), intelHDA.getCodecVendorId(), intelHDA.getSubsystemId());
+	if (config.getDisable())
 	{
-		DebugLog("no attempt to hook vendor 0x8086\n");
+		DebugLog("no attempt to hook IOAudioDevice due to codec profile Disable flag\n");
 		return false;
 	}
 

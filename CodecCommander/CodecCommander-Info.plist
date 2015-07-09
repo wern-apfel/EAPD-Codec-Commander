@@ -241,6 +241,20 @@
 		<dict>
 			<key>CFBundleIdentifier</key>
 			<string>${MODULE_NAME}</string>
+			<key>Codec Profile</key>
+			<dict>
+				<key>Disabled HDMI</key>
+				<dict>
+					<key>Disable</key>
+					<true/>
+				</dict>
+				<key>8086</key>
+				<string>Disabled HDMI</string>
+				<key>10de</key>
+				<string>Disabled HDMI</string>
+				<key>1002</key>
+				<string>Disabled HDMI</string>
+			</dict>
 			<key>IOClass</key>
 			<string>CodecCommanderPowerHook</string>
 			<key>IOMatchCategory</key>
@@ -269,6 +283,23 @@
 					<key>Sleep Nodes</key>
 					<false/>
 				</dict>
+				<key>Disabled HDMI</key>
+				<dict>
+					<key>Disable</key>
+					<true/>
+					<key>Check Infinitely</key>
+					<false/>
+					<key>Update Nodes</key>
+					<false/>
+					<key>Sleep Nodes</key>
+					<false/>
+				</dict>
+				<key>8086</key>
+				<string>Disabled HDMI</string>
+				<key>10de</key>
+				<string>Disabled HDMI</string>
+				<key>1002</key>
+				<string>Disabled HDMI</string>
 			</dict>
 			<key>IOClass</key>
 			<string>CodecCommander</string>

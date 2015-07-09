@@ -183,22 +183,17 @@ OSDictionary* Configuration::loadConfiguration(OSDictionary* profiles, UInt32 co
 
 Configuration::Configuration(OSObject* codecProfiles, UInt32 codecVendorId, UInt32 hdaSubsystemId)
 {
-    OSDictionary* list = OSDynamicCast(OSDictionary, codecProfiles);
+    OSDictionary* profiles = OSDynamicCast(OSDictionary, codecProfiles);
 
     // Retrieve platform profile configuration
-    OSDictionary* config = loadConfiguration(list, codecVendorId, hdaSubsystemId);
+    OSDictionary* config = loadConfiguration(profiles, codecVendorId, hdaSubsystemId);
 #ifdef DEBUG
     mMergedConfig = config;
     if (mMergedConfig)
         mMergedConfig->retain();
 #endif
 
-    mCustomCommands = OSArray::withCapacity(0);
-    if (!mCustomCommands)
-    {
-        OSSafeRelease(config);
-        return;
-    }
+    mCustomCommands = NULL;
 
     // if Disable is set in the profile, no more config is gathered, start will fail
     mDisable = getBoolValue(config, kDisable, false);
@@ -226,11 +221,23 @@ Configuration::Configuration(OSObject* codecProfiles, UInt32 codecVendorId, UInt
     mCheckInfinite = getBoolValue(config, kCheckInfinitely, false);
     mCheckInterval = getIntegerValue(config, kCheckInterval, 1000);
 
+    mCustomCommands = OSArray::withCapacity(0);
+    if (!mCustomCommands)
+    {
+        OSSafeRelease(config);
+        return;
+    }
+
     // Parse custom commands
-    if (OSArray* list = OSDynamicCast(OSArray, config->getObject(kCustomCommands)))
+    OSArray* list;
+    if (mCustomCommands && (list = OSDynamicCast(OSArray, config->getObject(kCustomCommands))))
     {
         OSCollectionIterator* iterator = OSCollectionIterator::withCollection(list);
-        if (!iterator) return;
+        if (!iterator)
+        {
+            OSSafeRelease(config);
+            return;
+        }
         while (OSDictionary* dict = OSDynamicCast(OSDictionary, iterator->getNextObject()))
         {
             OSObject* obj = dict->getObject(kCustomCommand);
@@ -240,6 +247,8 @@ Configuration::Configuration(OSObject* codecProfiles, UInt32 codecVendorId, UInt
             if (UInt32 commandBits = getIntegerValue(obj, 0))
             {
                 commandData = OSData::withCapacity(sizeof(CustomCommand)+sizeof(UInt32));
+                if (!commandData)
+                    break;
                 commandData->appendByte(0, commandData->getCapacity());
                 customCommand = (CustomCommand*)commandData->getBytesNoCopy();
                 customCommand->CommandCount = 1;
@@ -249,6 +258,8 @@ Configuration::Configuration(OSObject* codecProfiles, UInt32 codecVendorId, UInt
             {
                 unsigned length = data->getLength();
                 commandData = OSData::withCapacity(sizeof(CustomCommand)+length);
+                if (!commandData)
+                    break;
                 commandData->appendByte(0, commandData->getCapacity());
                 customCommand = (CustomCommand*)commandData->getBytesNoCopy();
                 customCommand->CommandCount = length / sizeof(customCommand->Commands[0]);
@@ -286,7 +297,8 @@ Configuration::Configuration(OSObject* codecProfiles, UInt32 codecVendorId, UInt
     DebugLog("...Sleep Nodes: %s\n", mSleepNodes ? "true" : "false");
 
 #ifdef DEBUG
-    if (OSCollectionIterator* iterator = OSCollectionIterator::withCollection(mCustomCommands))
+    OSCollectionIterator* iterator;
+    if (mCustomCommands && (iterator = OSCollectionIterator::withCollection(mCustomCommands)))
     {
         while (OSData* data = OSDynamicCast(OSData, iterator->getNextObject()))
         {
