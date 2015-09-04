@@ -245,8 +245,6 @@
 				<string>Realtek ALC892 desktop</string>
 				<key>10ec_0892_HDA_8086</key>
 				<string>Realtek ALC892 desktop</string>
-				<key>10ec_0900</key>
-				<string>Realtek ALC1150</string>
 				<key>Realtek ALC1150</key>
 				<dict>
 					<key>Custom Commands</key>
@@ -283,6 +281,8 @@
 					<key>Send Delay</key>
 					<integer>100</integer>
 				</dict>
+				<key>10ec_0900</key>
+				<string>Realtek ALC1150</string>
 			</dict>
 			<key>IOClass</key>
 			<string>CodecCommander</string>
@@ -292,10 +292,6 @@
 			<string>IOHDACodecFunction</string>
 			<key>IOUserClientClass</key>
 			<string>CodecCommanderClient</string>
-			<key>RM,Build</key>
-			<string>${CONFIGURATION}-${LOGNAME}</string>
-			<key>RM,Version</key>
-			<string>${PRODUCT_NAME} ${MODULE_VERSION}</string>
 		</dict>
 		<key>CodecCommander PowerHook</key>
 		<dict>
@@ -369,10 +365,6 @@
 			<string>VoodooHDADevice</string>
 			<key>IOUserClientClass</key>
 			<string>CodecCommanderClient</string>
-			<key>RM,Build</key>
-			<string>${CONFIGURATION}-${LOGNAME}</string>
-			<key>RM,Version</key>
-			<string>${PRODUCT_NAME} ${MODULE_VERSION}</string>
 		</dict>
 	</dict>
 	<key>NSHumanReadableCopyright</key>

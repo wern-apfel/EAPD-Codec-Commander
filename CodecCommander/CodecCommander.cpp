@@ -17,6 +17,7 @@
  *
  */
 
+#include <libkern/version.h>
 #include "CodecCommander.h"
 
 //REVIEW: avoids problem with Xcode 5.1.0 where -dead_strip eliminates these required symbols
@@ -114,9 +115,20 @@ static void setNumberProperty(IOService* service, const char* key, UInt32 value)
  ******************************************************************************/
 bool CodecCommander::start(IOService *provider)
 {
+	// announce version
 	extern kmod_info_t kmod_info;
+	IOLog("CodecCommander: Version %s starting on OS X Darwin %d.%d.\n", kmod_info.version, version_major, version_minor);
 	
-    AlwaysLog("Version %s starting.\n", kmod_info.version);
+	// place version/build info in ioreg properties RM,Build and RM,Version
+	char buf[128];
+	snprintf(buf, sizeof(buf), "%s %s", kmod_info.name, kmod_info.version);
+	setProperty("RM,Version", buf);
+#ifdef DEBUG
+	setProperty("RM,Build", "Debug-" LOGNAME);
+#else
+	setProperty("RM,Build", "Release-" LOGNAME);
+#endif
+
 
     if (!provider || !super::start(provider))
 	{
