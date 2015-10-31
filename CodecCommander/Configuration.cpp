@@ -230,7 +230,7 @@ Configuration::Configuration(OSObject* codecProfiles, UInt32 codecVendorId, UInt
 
     // Parse custom commands
     OSArray* list;
-    if (mCustomCommands && (list = OSDynamicCast(OSArray, config->getObject(kCustomCommands))))
+    if (mCustomCommands && config && (list = OSDynamicCast(OSArray, config->getObject(kCustomCommands))))
     {
         OSCollectionIterator* iterator = OSCollectionIterator::withCollection(list);
         if (!iterator)
