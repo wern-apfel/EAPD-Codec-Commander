@@ -52,6 +52,13 @@ enum
 	kClientNumMethods
 };
 
+class CodecCommanderResidency : public IOService
+{
+private:
+	typedef IOService super;
+	OSDeclareDefaultStructors(CodecCommanderResidency);
+};
+
 class CodecCommander : public IOService
 {
     typedef IOService super;

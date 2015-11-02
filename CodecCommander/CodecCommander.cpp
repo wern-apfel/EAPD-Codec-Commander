@@ -37,6 +37,8 @@ static IOPMPowerState powerStateArray[ kPowerStateCount ] =
     { 1,kIOPMDeviceUsable, IOPMPowerOn, IOPMPowerOn, 0,0,0,0,0,0,0,0 }
 };
 
+OSDefineMetaClassAndStructors(CodecCommanderResidency, IOService)
+
 OSDefineMetaClassAndStructors(CodecCommander, IOService)
 
 //REVIEW: getHDADriver and getAudioDevice are only used by "Check Infinitely"
