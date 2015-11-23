@@ -17,6 +17,7 @@
  *
  */
 
+#include <IOKit/acpi/IOACPIPlatformDevice.h>
 #include "Configuration.h"
 
 // Constants for Configuration
@@ -149,6 +150,143 @@ OSDictionary* Configuration::locateConfiguration(OSDictionary* profiles, UInt32 
     return dict;
 }
 
+OSObject* Configuration::translateEntry(OSObject* obj)
+{
+    // Note: non-NULL result is retained...
+
+    // if object is another array, translate it
+    if (OSArray* array = OSDynamicCast(OSArray, obj))
+        return translateArray(array);
+
+    // if object is a string, may be translated to boolean
+    if (OSString* string = OSDynamicCast(OSString, obj))
+    {
+        // object is string, translate special boolean values
+        const char* sz = string->getCStringNoCopy();
+        if (sz[0] == '>')
+        {
+            // boolean types true/false
+            if (sz[1] == 'y' && !sz[2])
+                return OSBoolean::withBoolean(true);
+            else if (sz[1] == 'n' && !sz[2])
+                return OSBoolean::withBoolean(false);
+            // escape case ('>>n' '>>y'), replace with just string '>n' '>y'
+            else if (sz[1] == '>' && (sz[2] == 'y' || sz[2] == 'n') && !sz[3])
+                return OSString::withCString(&sz[1]);
+        }
+    }
+    return NULL; // no translation
+}
+
+OSObject* Configuration::translateArray(OSArray* array)
+{
+    // may return either OSArray* or OSDictionary*
+
+    int count = array->getCount();
+    if (!count)
+        return NULL;
+
+    OSObject* result = array;
+
+    // if first entry is an empty array, process as array, else dictionary
+    OSArray* test = OSDynamicCast(OSArray, array->getObject(0));
+    if (test && test->getCount() == 0)
+    {
+        // using same array, but translating it...
+        array->retain();
+
+        // remove bogus first entry
+        array->removeObject(0);
+        --count;
+
+        // translate entries in the array
+        for (int i = 0; i < count; ++i)
+        {
+            if (OSObject* obj = translateEntry(array->getObject(i)))
+            {
+                array->setObject(i, obj);
+                obj->release();
+            }
+        }
+    }
+    else
+    {
+        // array is key/value pairs, so must be even
+        if (count & 1)
+            return NULL;
+
+        // dictionary constructed to accomodate all pairs
+        int size = count >> 1;
+        if (!size) size = 1;
+        OSDictionary* dict = OSDictionary::withCapacity(size);
+        if (!dict)
+            return NULL;
+
+        // go through each entry two at a time, building the dictionary
+        for (int i = 0; i < count; i += 2)
+        {
+            OSString* key = OSDynamicCast(OSString, array->getObject(i));
+            if (!key)
+            {
+                dict->release();
+                return NULL;
+            }
+            // get value, use translated value if translated
+            OSObject* obj = array->getObject(i+1);
+            OSObject* trans = translateEntry(obj);
+            if (trans)
+                obj = trans;
+            dict->setObject(key, obj);
+            OSSafeRelease(trans);
+        }
+        result = dict;
+    }
+
+    // Note: result is retained when returned...
+    return result;
+}
+
+OSDictionary* Configuration::getConfigurationOverride(const char* method, IOService* provider, const char* name)
+{
+    OSDictionary* dict = OSDynamicCast(OSDictionary, provider->getProperty(kRMCFCache));
+    if (!dict)
+    {
+        // find associated ACPI device
+        OSString* acpiPath = OSDynamicCast(OSString, provider->getProperty("acpi-path"));
+        if (!acpiPath)
+            return NULL;
+        IOACPIPlatformDevice* acpi = OSDynamicCast(IOACPIPlatformDevice, IOACPIPlatformDevice::fromPath(acpiPath->getCStringNoCopy()));
+        if (!acpi)
+            return NULL;
+
+        // attempt to get configuration data from provider
+        OSObject* r = NULL;
+        if (kIOReturnSuccess != acpi->evaluateObject(method, &r))
+            return NULL;
+
+        // for translation method must return array
+        OSObject* obj = NULL;
+        OSArray* array = OSDynamicCast(OSArray, r);
+        if (array)
+            obj = translateArray(array);
+        OSSafeRelease(r);
+
+        // must be dictionary after translation, even though array is possible
+        dict = OSDynamicCast(OSDictionary, obj);
+        if (!dict)
+        {
+            OSSafeRelease(obj);
+            return NULL;
+        }
+        provider->setProperty(kRMCFCache, dict);
+        dict->release();    // dict is retained by setProperty, still valid
+    }
+
+    // actual configuration is in subproperty/dictionary
+    OSDictionary* result = OSDynamicCast(OSDictionary, dict->getObject(name));
+    return result;
+}
+
 OSDictionary* Configuration::loadConfiguration(OSDictionary* profiles, UInt32 codecVendorId, UInt32 subsystemId)
 {
     OSDictionary* defaultProfile = NULL;
@@ -181,12 +319,20 @@ OSDictionary* Configuration::loadConfiguration(OSDictionary* profiles, UInt32 co
     return result;
 }
 
-Configuration::Configuration(OSObject* codecProfiles, UInt32 codecVendorId, UInt32 hdaSubsystemId)
+Configuration::Configuration(OSObject* codecProfiles, IntelHDA* intelHDA, const char* name)
 {
     OSDictionary* profiles = OSDynamicCast(OSDictionary, codecProfiles);
+    UInt32 codecVendorId = intelHDA->getCodecVendorId();
+    UInt32 hdaSubsystemId = intelHDA->getSubsystemId();
 
     // Retrieve platform profile configuration
     OSDictionary* config = loadConfiguration(profiles, codecVendorId, hdaSubsystemId);
+
+    // Load/merge override from RMCF if available
+    OSDictionary* custom = getConfigurationOverride("RMCF", intelHDA->getPCIDevice(), name);
+    if (custom)
+        config->merge(custom);
+
 #ifdef DEBUG
     mMergedConfig = config;
     if (mMergedConfig)

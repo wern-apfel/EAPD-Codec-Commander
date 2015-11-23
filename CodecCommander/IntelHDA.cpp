@@ -53,7 +53,7 @@ static UInt32 getPropertyValue(IORegistryEntry* registryEntry, const char* prope
 IntelHDA::IntelHDA(IOService* provider, HDACommandMode commandMode)
 {
     mCommandMode = commandMode;
-    mDevice = getPCIDevice(provider);
+    mDevice = ::getPCIDevice(provider);
 
     mCodecVendorId = getPropertyValue(provider, kCodecVendorID);
     mCodecGroupType = getPropertyValue(provider, kCodecFuncGroupType);
