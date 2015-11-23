@@ -5,16 +5,15 @@ This repo contains a fork of TimeWalker's original here: https://github.com/Doln
 
 The main changes are:
 
-*** No changes currently ***
+- custom configuration with ACPI RMCF object.
 
-At the moment, each repository is in sync.
+See SSDT-ALC283.dsl for an example configuration override.  The data there is the same as for the Info.plist data for ALC283.  But you can customize it for your own codec if needed.
+
+By customizing via ACPI instead of modifying Info.plist, it can make upgrades to future versions of CodecCommander easier.  It also means that future profiles do not need to be added to the kext itself, since customization is handled externally.
+
+Other than ACPI configuration, the repositories are in sync.
 
 Read the commit log for an idea on contributions from Dolnor, the-darkvoid, and RehabMan.
-
-
-Future ideas:
-
-- DSDT-based configuration?
 
 
 ### Download location

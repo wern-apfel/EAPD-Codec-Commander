@@ -39,6 +39,7 @@
 		8499218E1600F4FC00CCDF3B /* CodecCommander.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = CodecCommander.cpp; sourceTree = "<group>"; usesTabs = 1; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		8499218F1600F4FC00CCDF3B /* CodecCommander.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = CodecCommander.h; sourceTree = "<group>"; usesTabs = 1; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		849F78D71ACFC03600389EDA /* makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; path = makefile; sourceTree = "<group>"; };
+		84E686211C02AE6900638613 /* SSDT-ALC283.dsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "SSDT-ALC283.dsl"; sourceTree = "<group>"; };
 		D404F1D51A124D5E008E6BFD /* Client.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Client.cpp; sourceTree = "<group>"; };
 		D40F6EDC1A73EBFD0064E146 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		D42D3C051A59558B006C4C8C /* CodecCommanderClient */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = CodecCommanderClient; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -78,6 +79,7 @@
 			children = (
 				849F78D71ACFC03600389EDA /* makefile */,
 				D42D3C0F1A595B8D006C4C8C /* README.md */,
+				84E686211C02AE6900638613 /* SSDT-ALC283.dsl */,
 				0C4B238314598AD20080D960 /* CodecCommander */,
 				D42D3C061A59558C006C4C8C /* CodecCommanderClient */,
 				0C4B238014598AD20080D960 /* Frameworks */,
