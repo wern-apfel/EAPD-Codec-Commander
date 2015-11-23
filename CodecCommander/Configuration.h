@@ -24,8 +24,8 @@
 #include "IntelHDA.h"
 
 #define kRMCFCache "RMCF.cache"
-#define kIntelHDMIKey "Intel HDMI"
-#define kHDAKey "HDA"
+#define kCodecCommanderPowerHookKey "CodecCommanderPowerHook"
+#define kCodecCommanderKey "CodecCommander"
 
 typedef struct
 {

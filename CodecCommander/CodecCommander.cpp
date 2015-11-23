@@ -154,7 +154,7 @@ bool CodecCommander::start(IOService *provider)
 	setNumberProperty(this, kCodecAddress, mIntelHDA->getCodecAddress());
 	setNumberProperty(this, kCodecFuncGroupType, mIntelHDA->getCodecGroupType());
 	
-	mConfiguration = new Configuration(this->getProperty(kCodecProfile), mIntelHDA, kHDAKey);
+	mConfiguration = new Configuration(this->getProperty(kCodecProfile), mIntelHDA, kCodecCommanderKey);
 	if (!mConfiguration || mConfiguration->getDisable())
 	{
 		AlwaysLog("stopping due to codec profile Disable flag\n");
@@ -560,7 +560,7 @@ bool CodecCommanderPowerHook::start(IOService *provider)
 
 	// don't attempt to AppleHDADriver for vendor 0x8086
 	IntelHDA intelHDA(provider, PIO);
-	Configuration config(this->getProperty(kCodecProfile), &intelHDA, kIntelHDMIKey);
+	Configuration config(this->getProperty(kCodecProfile), &intelHDA, kCodecCommanderPowerHookKey);
 	if (config.getDisable())
 	{
 		DebugLog("no attempt to hook IOAudioDevice due to codec profile Disable flag\n");
