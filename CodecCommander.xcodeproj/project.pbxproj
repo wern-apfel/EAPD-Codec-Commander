@@ -277,7 +277,7 @@
 				);
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
-				MODULE_VERSION = 2.5.0;
+				MODULE_VERSION = 2.5.1;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx10.6;
 				SYMROOT = build/Products;
@@ -293,7 +293,7 @@
 				);
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
-				MODULE_VERSION = 2.5.0;
+				MODULE_VERSION = 2.5.1;
 				SDKROOT = macosx10.6;
 				SYMROOT = build/Products;
 			};
