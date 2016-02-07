@@ -204,7 +204,7 @@ OSObject* Configuration::translateArray(OSArray* array)
         {
             if (OSObject* obj = translateEntry(array->getObject(i)))
             {
-                array->setObject(i, obj);
+                array->replaceObject(i, obj);
                 obj->release();
             }
         }
@@ -267,6 +267,14 @@ OSDictionary* Configuration::getConfigurationOverride(const char* method, IOServ
         // for translation method must return array
         OSObject* obj = NULL;
         OSArray* array = OSDynamicCast(OSArray, r);
+#ifdef DEBUG
+        if (array)
+        {
+            OSCollection* copy = array->copyCollection();
+            if (copy)
+                provider->setProperty("RMCF.result", copy);
+        }
+#endif
         if (array)
             obj = translateArray(array);
         OSSafeRelease(r);

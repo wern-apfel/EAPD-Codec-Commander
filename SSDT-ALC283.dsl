@@ -29,7 +29,7 @@ DefinitionBlock ("SSDT-ALC283.aml", "SSDT", 1, "hack", "hack", 0x00003000)
                 Package()
                 {
                     // 0x21 SET_UNSOLICITED_ENABLE 0x83
-                    "Commannd", Buffer() { 0x02, 0x17, 0x08, 0x83 },
+                    "Command", Buffer() { 0x02, 0x17, 0x08, 0x83 },
                     "On Init", ">y",
                     "On Sleep", ">n",
                     "On Wake", ">y",
