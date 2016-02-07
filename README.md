@@ -185,6 +185,16 @@ By default HDMI codecs re disabled in order to prevent CC attaching on them. If 
 
 ### Changelog
 
+Feb 06, 2016 v2.5.1
+
+- Fixing a problem (issue #10) with ACPI parsing with arrays of translated entries (such as arrays of dictionaries)
+
+
+Nov 22, 2015 v2.5.0
+
+- ACPI custom configuration
+
+
 May 22, 2015 v2.4.0
 
 - CodecCommander PowerHook to monitor codec power state transitions opposed to doing it from Infinite Loop
