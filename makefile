@@ -1,11 +1,14 @@
-
-# really just some handy scripts...
-
 KEXT=CodecCommander.kext
 DIST=RehabMan-CodecCommander
 BUILDDIR=./build/Products
-INSTDIR=/System/Library/Extensions
 OPTIONS:=$(OPTIONS) -scheme CodecCommander
+
+VERSION_ERA=$(shell ./print_version.sh)
+ifeq "$(VERSION_ERA)" "10.10-"
+	INSTDIR=/System/Library/Extensions
+else
+	INSTDIR=/Library/Extensions
+endif
 
 ifeq ($(findstring 32,$(BITS)),32)
 OPTIONS:=$(OPTIONS) -arch i386

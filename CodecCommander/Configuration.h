@@ -21,6 +21,11 @@
 #define CodecCommander_Configuration_h
 
 #include "Common.h"
+#include "IntelHDA.h"
+
+#define kRMCFCache "RMCF.cache"
+#define kCodecCommanderPowerHookKey "CodecCommanderPowerHook"
+#define kCodecCommanderKey "CodecCommander"
 
 typedef struct
 {
@@ -51,6 +56,10 @@ class Configuration
     static UInt32 getIntegerValue(OSDictionary* dict, const char* key, UInt32 defValue);
     static UInt32 getIntegerValue(OSObject* obj, UInt32 defValue);
 
+    OSDictionary* getConfigurationOverride(const char* method, IOService* provider, const char* name);
+    OSObject* translateArray(OSArray* array);
+    OSObject* translateEntry(OSObject* obj);
+
 public:
     inline bool getUpdateNodes() { return mUpdateNodes; };
     inline bool getSleepNodes() { return mSleepNodes; }
@@ -64,7 +73,7 @@ public:
     inline bool getDisable() { return mDisable; }
 
     // Constructor
-    Configuration(OSObject* codecProfiles, UInt32 codecVendorId, UInt32 hdaSubsystemId);
+    Configuration(OSObject* codecProfiles, IntelHDA* intelHDA, const char* name);
     ~Configuration();
 
 #ifdef DEBUG

@@ -274,9 +274,9 @@ public:
 
 	void resetCodec();
 
-	UInt32 getCodecVendorId() { return mCodecVendorId; }
-	UInt8 getCodecAddress() { return mCodecAddress; }
-	UInt8 getCodecGroupType() { return mCodecGroupType; }
+	inline UInt32 getCodecVendorId() { return mCodecVendorId; }
+	inline UInt8 getCodecAddress() { return mCodecAddress; }
+	inline UInt8 getCodecGroupType() { return mCodecGroupType; }
 
 	UInt16 getVendorId();
 	UInt16 getDeviceId();
@@ -285,6 +285,8 @@ public:
 
 	UInt8 getTotalNodes();
 	UInt8 getStartingNode();
+
+	inline IOPCIDevice* getPCIDevice() { return mDevice; }
 
 private:
 	UInt32 executePIO(UInt32 command);

@@ -17,6 +17,7 @@
  *
  */
 
+#include <libkern/version.h>
 #include "CodecCommander.h"
 
 //REVIEW: avoids problem with Xcode 5.1.0 where -dead_strip eliminates these required symbols
@@ -35,6 +36,8 @@ static IOPMPowerState powerStateArray[ kPowerStateCount ] =
     { 1,kIOPMDeviceUsable, kIOPMDoze, kIOPMDoze, 0,0,0,0,0,0,0,0 },
     { 1,kIOPMDeviceUsable, IOPMPowerOn, IOPMPowerOn, 0,0,0,0,0,0,0,0 }
 };
+
+OSDefineMetaClassAndStructors(CodecCommanderResidency, IOService)
 
 OSDefineMetaClassAndStructors(CodecCommander, IOService)
 
@@ -114,9 +117,20 @@ static void setNumberProperty(IOService* service, const char* key, UInt32 value)
  ******************************************************************************/
 bool CodecCommander::start(IOService *provider)
 {
+	// announce version
 	extern kmod_info_t kmod_info;
+	IOLog("CodecCommander: Version %s starting on OS X Darwin %d.%d.\n", kmod_info.version, version_major, version_minor);
 	
-    AlwaysLog("Version %s starting.\n", kmod_info.version);
+	// place version/build info in ioreg properties RM,Build and RM,Version
+	char buf[128];
+	snprintf(buf, sizeof(buf), "%s %s", kmod_info.name, kmod_info.version);
+	setProperty("RM,Version", buf);
+#ifdef DEBUG
+	setProperty("RM,Build", "Debug-" LOGNAME);
+#else
+	setProperty("RM,Build", "Release-" LOGNAME);
+#endif
+
 
     if (!provider || !super::start(provider))
 	{
@@ -140,7 +154,7 @@ bool CodecCommander::start(IOService *provider)
 	setNumberProperty(this, kCodecAddress, mIntelHDA->getCodecAddress());
 	setNumberProperty(this, kCodecFuncGroupType, mIntelHDA->getCodecGroupType());
 	
-	mConfiguration = new Configuration(this->getProperty(kCodecProfile), mIntelHDA->getCodecVendorId(), mIntelHDA->getSubsystemId());
+	mConfiguration = new Configuration(this->getProperty(kCodecProfile), mIntelHDA, kCodecCommanderKey);
 	if (!mConfiguration || mConfiguration->getDisable())
 	{
 		AlwaysLog("stopping due to codec profile Disable flag\n");
@@ -546,9 +560,10 @@ bool CodecCommanderPowerHook::start(IOService *provider)
 
 	// don't attempt to AppleHDADriver for vendor 0x8086
 	IntelHDA intelHDA(provider, PIO);
-	if (0x8086 == (intelHDA.getCodecVendorId() >> 16))
+	Configuration config(this->getProperty(kCodecProfile), &intelHDA, kCodecCommanderPowerHookKey);
+	if (config.getDisable())
 	{
-		DebugLog("no attempt to hook vendor 0x8086\n");
+		DebugLog("no attempt to hook IOAudioDevice due to codec profile Disable flag\n");
 		return false;
 	}
 
