@@ -7,7 +7,7 @@
 
 // Customize to suit your needs.
 
-DefinitionBlock ("SSDT-ALC283.aml", "SSDT", 1, "hack", "hack", 0x00003000)
+DefinitionBlock ("", "SSDT", 1, "hack", "ALC283", 0)
 {
     External(_SB.PCI0.HDEF, DeviceObj)
     
@@ -41,5 +41,4 @@ DefinitionBlock ("SSDT-ALC283.aml", "SSDT", 1, "hack", "hack", 0x00003000)
         },
     })
 }
-
-// EOF
+//EOF

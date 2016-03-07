@@ -9,6 +9,8 @@ The main changes are:
 
 See SSDT-ALC283.dsl for an example configuration override.  The data there is the same as for the Info.plist data for ALC283.  But you can customize it for your own codec if needed.
 
+Also see SSDT-ALC668.dsl which overrides the custom commands for ALC668 to correct audio after booting Windows on some computers.
+
 By customizing via ACPI instead of modifying Info.plist, it can make upgrades to future versions of CodecCommander easier.  It also means that future profiles do not need to be added to the kext itself, since customization is handled externally.
 
 Other than ACPI configuration, the repositories are in sync.
