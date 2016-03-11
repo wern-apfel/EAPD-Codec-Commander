@@ -348,7 +348,9 @@ void CodecCommander::handleStateChange(IOAudioDevicePowerState newState)
 				}
 			}
 
-			customCommands(kStateWake);
+			if (!mColdBoot)
+				customCommands(kStateWake);
+
 			mEAPDPoweredDown = false;
 			break;
 	}

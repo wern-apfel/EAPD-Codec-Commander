@@ -187,6 +187,11 @@ By default HDMI codecs re disabled in order to prevent CC attaching on them. If 
 
 ### Changelog
 
+Mar 11, 2016 v2.5.2
+
+-  Bug fix: Custom Commands tagged with On Wake=true, but On Init=false were still being sent.
+
+
 Feb 06, 2016 v2.5.1
 
 - Fixing a problem (issue #10) with ACPI parsing with arrays of translated entries (such as arrays of dictionaries)
