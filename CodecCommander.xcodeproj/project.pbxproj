@@ -285,7 +285,7 @@
 				);
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
-				MODULE_VERSION = 2.5.2;
+				MODULE_VERSION = 2.6.0;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx10.6;
 				SYMROOT = build/Products;
@@ -301,7 +301,7 @@
 				);
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
-				MODULE_VERSION = 2.5.2;
+				MODULE_VERSION = 2.6.0;
 				SDKROOT = macosx10.6;
 				SYMROOT = build/Products;
 			};
@@ -314,6 +314,8 @@
 				GCC_PREFIX_HEADER = "CodecCommander/CodecCommander-Prefix.pch";
 				INFOPLIST_FILE = "CodecCommander/CodecCommander-Info.plist";
 				MODULE_NAME = org.tw.CodecCommander;
+				MODULE_START = CodecCommander_Start;
+				MODULE_STOP = CodecCommander_Stop;
 				PRODUCT_NAME = CodecCommander;
 				STRIP_INSTALLED_PRODUCT = YES;
 			};
@@ -326,6 +328,8 @@
 				GCC_PREFIX_HEADER = "CodecCommander/CodecCommander-Prefix.pch";
 				INFOPLIST_FILE = "CodecCommander/CodecCommander-Info.plist";
 				MODULE_NAME = org.tw.CodecCommander;
+				MODULE_START = CodecCommander_Start;
+				MODULE_STOP = CodecCommander_Stop;
 				PRODUCT_NAME = CodecCommander;
 				STRIP_INSTALLED_PRODUCT = YES;
 			};

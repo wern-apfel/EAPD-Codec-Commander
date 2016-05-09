@@ -22,8 +22,10 @@
 
 #ifdef DEBUG
 #define DebugLog(args...) do { IOLog("CodecCommander: " args); } while (0)
+#define DebugOnly(expr)     do { expr; } while (0)
 #else
 #define DebugLog(args...) do { } while (0)
+#define DebugOnly(expr)    do { } while (0)
 #endif
 #define AlwaysLog(args...) do { IOLog("CodecCommander: " args); } while (0)
 

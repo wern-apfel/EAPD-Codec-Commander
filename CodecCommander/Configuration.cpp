@@ -27,6 +27,7 @@
 #define kPerformResetOnEAPDFail     "Perform Reset on EAPD Fail"
 #define kCodecId                    "Codec Id"
 #define kDisable                    "Disable"
+#define kCodecAddressMask           "CodecAddressMask"
 
 // Constants for EAPD command verb sending
 #define kUpdateNodes                "Update Nodes"
@@ -43,6 +44,8 @@
 #define kCommandOnInit              "On Init"
 #define kCommandOnSleep             "On Sleep"
 #define kCommandOnWake              "On Wake"
+#define kCommandOnProbe             "On Probe"
+#define kCommandLayoutID            "LayoutID"
 
 // Parsing for configuration
 
@@ -333,11 +336,29 @@ Configuration::Configuration(OSObject* codecProfiles, IntelHDA* intelHDA, const 
     UInt32 codecVendorId = intelHDA->getCodecVendorId();
     UInt32 hdaSubsystemId = intelHDA->getSubsystemId();
 
-    // Retrieve platform profile configuration
-    OSDictionary* config = loadConfiguration(profiles, codecVendorId, hdaSubsystemId);
-
     // Load/merge override from RMCF if available
     OSDictionary* custom = getConfigurationOverride("RMCF", intelHDA->getPCIDevice(), name);
+    if (custom && profiles)
+    {
+        if (OSNumber* num = OSDynamicCast(OSNumber, custom->getObject("Version")))
+        {
+            if (num->unsigned32BitValue() == 0x020600) // version must be marked 0x020600 for new way
+            {
+                // new way custom configuration (merge into master profile)
+                profiles = OSDynamicCast(OSDictionary, profiles->copyCollection());
+                if (profiles)
+                    profiles->merge(custom);
+                custom = NULL;
+            }
+        }
+    }
+
+    // Retrieve platform profile configuration
+    OSDictionary* config = loadConfiguration(profiles, codecVendorId, hdaSubsystemId);
+    if (profiles != codecProfiles)
+        OSSafeRelease(profiles);
+
+    // old way custom configuration (merge into device specific)
     if (custom)
         config->merge(custom);
 
@@ -356,6 +377,9 @@ Configuration::Configuration(OSObject* codecProfiles, IntelHDA* intelHDA, const 
         OSSafeRelease(config);
         return;
     }
+
+    // Get CodecAddressMask
+    mCodecAddressMask = getIntegerValue(config, kCodecAddressMask, 1);
 
     // Get delay for sending the verb
     mSendDelay = getIntegerValue(config, kSendDelay, 300);
@@ -384,16 +408,12 @@ Configuration::Configuration(OSObject* codecProfiles, IntelHDA* intelHDA, const 
 
     // Parse custom commands
     OSArray* list;
-    if (mCustomCommands && config && (list = OSDynamicCast(OSArray, config->getObject(kCustomCommands))))
+    if (config && (list = OSDynamicCast(OSArray, config->getObject(kCustomCommands))))
     {
-        OSCollectionIterator* iterator = OSCollectionIterator::withCollection(list);
-        if (!iterator)
+        unsigned count = list->getCount();
+        for (unsigned i = 0; i < count; i++)
         {
-            OSSafeRelease(config);
-            return;
-        }
-        while (OSDictionary* dict = OSDynamicCast(OSDictionary, iterator->getNextObject()))
-        {
+            OSDictionary* dict = (OSDictionary*)list->getObject(i);
             OSObject* obj = dict->getObject(kCustomCommand);
             OSData* commandData = NULL;
             CustomCommand* customCommand;
@@ -430,11 +450,12 @@ Configuration::Configuration(OSObject* codecProfiles, IntelHDA* intelHDA, const 
                 customCommand->OnInit = getBoolValue(dict, kCommandOnInit, false);
                 customCommand->OnSleep = getBoolValue(dict, kCommandOnSleep, false);
                 customCommand->OnWake = getBoolValue(dict, kCommandOnWake, false);
+                customCommand->OnProbe = getBoolValue(dict, kCommandOnProbe, false);
+                customCommand->layoutID = getIntegerValue(dict, kCommandLayoutID, -1);
                 mCustomCommands->setObject(commandData);
                 commandData->release();
             }
         }
-        iterator->release();
     }
 
     OSSafeRelease(config);
@@ -451,11 +472,12 @@ Configuration::Configuration(OSObject* codecProfiles, IntelHDA* intelHDA, const 
     DebugLog("...Sleep Nodes: %s\n", mSleepNodes ? "true" : "false");
 
 #ifdef DEBUG
-    OSCollectionIterator* iterator;
-    if (mCustomCommands && (iterator = OSCollectionIterator::withCollection(mCustomCommands)))
+    if (mCustomCommands)
     {
-        while (OSData* data = OSDynamicCast(OSData, iterator->getNextObject()))
+        unsigned count = mCustomCommands->getCount();
+        for (unsigned i = 0; i < count; i++)
         {
+            OSData* data = (OSData*)mCustomCommands->getObject(i);
             CustomCommand* customCommand = (CustomCommand*)data->getBytesNoCopy();
             DebugLog("Custom Command\n");
             if (customCommand->CommandCount == 1)
@@ -464,13 +486,14 @@ Configuration::Configuration(OSObject* codecProfiles, IntelHDA* intelHDA, const 
                 DebugLog("...Commands(%d): 0x%08x 0x%08x\n", customCommand->CommandCount, customCommand->Commands[0], customCommand->Commands[1]);
             if (customCommand->CommandCount == 3)
                 DebugLog("...Commands(%d): 0x%08x 0x%08x 0x%08x\n", customCommand->CommandCount, customCommand->Commands[0], customCommand->Commands[1], customCommand->Commands[2]);
-            if (customCommand->CommandCount == 3)
-                DebugLog("...Commands(%d): 0x%08x 0x%08x 0x%08x ...\n", customCommand->CommandCount, customCommand->Commands[0], customCommand->Commands[1], customCommand->Commands[2]);
+            if (customCommand->CommandCount > 3)
+                DebugLog("...Commands(%d): 0x%08x 0x%08x 0x%08x 0x%08x ...\n", customCommand->CommandCount, customCommand->Commands[0], customCommand->Commands[1], customCommand->Commands[2], customCommand->Commands[3]);
             DebugLog("...OnInit: %s\n", customCommand->OnInit ? "true" : "false");
             DebugLog("...OnWake: %s\n", customCommand->OnWake ? "true" : "false");
             DebugLog("...OnSleep: %s\n", customCommand->OnSleep ? "true" : "false");
+            DebugLog("...OnSleep: %s\n", customCommand->OnProbe ? "true" : "false");
+            DebugLog("...LayoutID: %d\n", customCommand->layoutID);
         }
-        iterator->release();
     }
 #endif
 }
