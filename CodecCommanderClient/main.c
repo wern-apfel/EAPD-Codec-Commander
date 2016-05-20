@@ -38,7 +38,7 @@ static UInt32 execute_command(UInt32 command, UInt32 vendorId, UInt32 codecAddre
     //CFDictionarySetValue(dict, CFSTR("IOHDACodecVendorID"), vendorIdRef);
     
     //CFNumberRef codecAddressRef = CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &codecAddress);
-    //CFDictionarySetValue(dict, CFSTR("IOHDACodecAddress"), vendorIdRef);
+    //CFDictionarySetValue(dict, CFSTR("IOHDACodecAddress"), codecAddressRef);
     
     //CFNumberRef functionGroupRef = CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &functionGroup);
     //CFDictionarySetValue(dict, CFSTR("IOHDACodecFunctionGroupType"), functionGroupRef);
@@ -162,8 +162,9 @@ int main(int argc, char **argv)
     long nid, verb, param;
     int c;
     char **p;
+    bool quiet = false;
     
-    while ((c = getopt(argc, argv, "lL")) >= 0)
+    while ((c = getopt(argc, argv, "qlL")) >= 0)
     {
         switch (c)
         {
@@ -173,6 +174,9 @@ int main(int argc, char **argv)
             case 'L':
                 list_verbs(1);
                 return 0;
+            case 'q':
+                quiet = true;
+                break;
             default:
                 usage();
                 return 1;
@@ -230,13 +234,19 @@ int main(int argc, char **argv)
             return 1;
         }
     }
-    
-    printf("nid = 0x%lx, verb = 0x%lx, param = 0x%lx\n",
-            nid, verb, param);
+
+    if (!quiet)
+        printf("nid = 0x%lx, verb = 0x%lx, param = 0x%lx\n", nid, verb, param);
     
     UInt32 command = (UInt32)HDA_VERB(nid, verb, param);
-    
     // Execute command
-    printf("command 0x%08x --> result = 0x%08x\n", command, execute_command(command, 0x10ec0668, 0x0, 0x01));
+    UInt32 result = execute_command(command, 0x10ec0892, 0x0, 0x01);
+
+    // Print result
+    if (quiet)
+        printf("0x%08x\n", result);
+    else
+        printf("command 0x%08x --> result = 0x%08x\n", command, result);
+
     return 0;
 }
