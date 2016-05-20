@@ -192,11 +192,11 @@ bool IntelHDA::initialize(bool regMapOnly)
         this->resetCodec();
 
     // getVendorId initializes mCodecVendorId
-    if (this->getVendorId() == 0xFFFF)
+    UInt16 vendor = this->getVendorId();
+    if (vendor == 0xFFFF)
         return false;
 
     UInt32 subsystem = this->getSubsystemId();
-    UInt16 vendor = this->getVendorId();
 
     // avoid logging HDMI audio (except in DEBUG build) as it is disabled anyway
 #ifndef DEBUG
@@ -301,7 +301,7 @@ UInt16 IntelHDA::getAudioRoot()
             for (UInt16 node = start; node < end; node++)
             {
                 UInt32 type = this->sendCommand(node, HDA_VERB_GET_PARAM, HDA_PARM_FUNCGRP);
-                if ((type & 0xFF) == HDA_TYPE_AFG)
+                if ((type & 0x7F) == HDA_TYPE_AFG)
                 {
                     DebugLog("getAudioRoot found audio root = 0x%02x\n", node);
                     mAudioRoot = node;

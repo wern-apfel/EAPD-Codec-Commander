@@ -42,6 +42,7 @@ typedef struct
 class Configuration
 {
     OSArray* mCustomCommands;
+    OSArray* mPinConfigDefault;
     
     bool mCheckInfinite;
     UInt16 mCheckInterval;
@@ -76,6 +77,7 @@ public:
     inline OSArray* getCustomCommands() { return mCustomCommands; };
     inline bool getDisable() { return mDisable; }
     inline UInt16 getCodecAddressMask() { return mCodecAddressMask; }
+    inline OSArray* getPinConfigDefault() { return mPinConfigDefault; }
 
     // Constructor
     Configuration(OSObject* codecProfiles, IntelHDA* intelHDA, const char* name);

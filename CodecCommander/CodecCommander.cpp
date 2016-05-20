@@ -799,6 +799,14 @@ IOService* CodecCommanderProbeInit::probe(IOService* provider, SInt32* score)
 
 OSDefineMetaClassAndStructors(CodecCommanderProbeInit2, IOService)
 
+static UInt32 getNumberFromArray(OSArray* array, unsigned index)
+{
+	OSNumber* num = OSDynamicCast(OSNumber, array->getObject(index));
+	if (!num)
+		return (UInt32)-1;
+	return num->unsigned32BitValue();
+}
+
 IOService* CodecCommanderProbeInit2::probe(IOService* provider, SInt32* score)
 {
 	DebugLog("CodecCommanderProbeInit2::probe\n");
@@ -826,6 +834,7 @@ IOService* CodecCommanderProbeInit2::probe(IOService* provider, SInt32* score)
 
 	Configuration config(this->getProperty(kCodecProfile), &intelHDA, kCodecCommanderProbeInitKey);
 
+	// send any verbs in "Custom Commands"
 	int commandsSent = 0;
 	OSArray* commands = config.getCustomCommands();
 	unsigned count = commands->getCount();
@@ -847,6 +856,45 @@ IOService* CodecCommanderProbeInit2::probe(IOService* provider, SInt32* score)
 
 	if (commandsSent)
 		AlwaysLog("CodecCommanderProbeInit sent %d command(s) during probe (0x%08x)\n", commandsSent, intelHDA.getCodecVendorId());
+
+	// configure pin defaults from "PinConfigDefault"
+	int pinConfigsSet = 0;
+	if (OSArray* pinConfigs = config.getPinConfigDefault())
+	{
+		count = pinConfigs->getCount();
+		for (unsigned i = 0; i < count; i++)
+		{
+			OSDictionary* dict = OSDynamicCast(OSDictionary, pinConfigs->getObject(i));
+			if (!dict) continue;
+			unsigned id = -1;
+			if (OSNumber* num = OSDynamicCast(OSNumber, dict->getObject("LayoutID")))
+				id = num->unsigned32BitValue();
+			if ((UInt32)-1 == id || layoutID == id)
+			{
+				OSArray* pins = OSDynamicCast(OSArray, dict->getObject("PinConfigs"));
+				if (!pins) continue;
+				unsigned count = pins->getCount();
+				if (count & 1) continue;
+				for (int i = 0; i < count; i += 2)
+				{
+					UInt32 node = getNumberFromArray(pins, i);
+					if ((UInt32)-1 != node)
+					{
+						UInt32 config = getNumberFromArray(pins, i+1);
+						DebugLog("--> custom pin config, node=0x%02x : 0x%08x\n", node, config);
+						intelHDA.sendCommand(node, HDA_VERB_SET_CONFIG_DEFAULT_BYTES_0, config>>0);
+						intelHDA.sendCommand(node, HDA_VERB_SET_CONFIG_DEFAULT_BYTES_1, config>>8);
+						intelHDA.sendCommand(node, HDA_VERB_SET_CONFIG_DEFAULT_BYTES_2, config>>16);
+						intelHDA.sendCommand(node, HDA_VERB_SET_CONFIG_DEFAULT_BYTES_3, config>>24);
+						pinConfigsSet++;
+					}
+				}
+			}
+		}
+	}
+
+	if (pinConfigsSet)
+		AlwaysLog("CodecCommanderProbeInit set %d pinconfig(s) during probe (0x%08x)\n", pinConfigsSet, intelHDA.getCodecVendorId());
 
 	IORecursiveLockUnlock(g_lock);
 

@@ -47,6 +47,9 @@
 #define kCommandOnProbe             "On Probe"
 #define kCommandLayoutID            "LayoutID"
 
+// Constants for Pin Configuration
+#define kPinConfigDefault           "PinConfigDefault"
+
 // Parsing for configuration
 
 UInt32 Configuration::parseInteger(const char* str)
@@ -369,6 +372,7 @@ Configuration::Configuration(OSObject* codecProfiles, IntelHDA* intelHDA, const 
 #endif
 
     mCustomCommands = NULL;
+    mPinConfigDefault = NULL;
 
     // if Disable is set in the profile, no more config is gathered, start will fail
     mDisable = getBoolValue(config, kDisable, false);
@@ -398,6 +402,13 @@ Configuration::Configuration(OSObject* codecProfiles, IntelHDA* intelHDA, const 
     // Determine if infinite check is needed (for 10.9 and up)
     mCheckInfinite = getBoolValue(config, kCheckInfinitely, false);
     mCheckInterval = getIntegerValue(config, kCheckInterval, 1000);
+
+    // load PinConfigDefault
+    if (config)
+    {
+        if (OSArray* pinConfig = OSDynamicCast(OSArray, config->getObject(kPinConfigDefault)))
+            mPinConfigDefault = (OSArray*)pinConfig->copyCollection();
+    }
 
     mCustomCommands = OSArray::withCapacity(0);
     if (!mCustomCommands)
@@ -503,6 +514,7 @@ Configuration::~Configuration()
 #ifdef DEBUG
     OSSafeRelease(mMergedConfig);
 #endif
+    OSSafeRelease(mPinConfigDefault);
     OSSafeRelease(mCustomCommands);
 }
 

@@ -53,6 +53,11 @@ extern unsigned ioDelayCount;
 #define HDA_PARM_PS_D3_HOT	(UInt8)0x03 // Powerstate D3Hot
 #define HDA_PARM_PS_D3_COLD (UInt8)0x04	// Powerstate D3Cold
 
+#define HDA_VERB_SET_CONFIG_DEFAULT_BYTES_0      (UInt16)0x71c
+#define HDA_VERB_SET_CONFIG_DEFAULT_BYTES_1      (UInt16)0x71d
+#define HDA_VERB_SET_CONFIG_DEFAULT_BYTES_2      (UInt16)0x71e
+#define HDA_VERB_SET_CONFIG_DEFAULT_BYTES_3      (UInt16)0x71f
+
 #define HDA_TYPE_AFG	1	// return from PARM_FUNCGRP is 1 for Audio
 #define HDA_MAX_CODECS	15	// maximum number of codecs supported (0-14)
 
