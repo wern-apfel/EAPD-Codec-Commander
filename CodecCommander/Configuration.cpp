@@ -44,7 +44,6 @@
 #define kCommandOnInit              "On Init"
 #define kCommandOnSleep             "On Sleep"
 #define kCommandOnWake              "On Wake"
-#define kCommandOnProbe             "On Probe"
 #define kCommandLayoutID            "LayoutID"
 
 // Constants for Pin Configuration
@@ -461,7 +460,6 @@ Configuration::Configuration(OSObject* codecProfiles, IntelHDA* intelHDA, const 
                 customCommand->OnInit = getBoolValue(dict, kCommandOnInit, false);
                 customCommand->OnSleep = getBoolValue(dict, kCommandOnSleep, false);
                 customCommand->OnWake = getBoolValue(dict, kCommandOnWake, false);
-                customCommand->OnProbe = getBoolValue(dict, kCommandOnProbe, false);
                 customCommand->layoutID = getIntegerValue(dict, kCommandLayoutID, -1);
                 mCustomCommands->setObject(commandData);
                 commandData->release();
@@ -502,7 +500,6 @@ Configuration::Configuration(OSObject* codecProfiles, IntelHDA* intelHDA, const 
             DebugLog("...OnInit: %s\n", customCommand->OnInit ? "true" : "false");
             DebugLog("...OnWake: %s\n", customCommand->OnWake ? "true" : "false");
             DebugLog("...OnSleep: %s\n", customCommand->OnSleep ? "true" : "false");
-            DebugLog("...OnSleep: %s\n", customCommand->OnProbe ? "true" : "false");
             DebugLog("...LayoutID: %d\n", customCommand->layoutID);
         }
     }

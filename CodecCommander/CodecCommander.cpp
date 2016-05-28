@@ -699,106 +699,6 @@ IOReturn CodecCommanderPowerHook::setPowerState(unsigned long powerStateOrdinal,
 
 OSDefineMetaClassAndStructors(CodecCommanderProbeInit, IOService)
 
-IOService* CodecCommanderProbeInit::probe(IOService* provider, SInt32* score)
-{
-	DebugLog("CodecCommanderProbeInit::probe\n");
-
-	IORecursiveLockLock(g_lock);
-
-	IntelHDA intelHDA(provider, PIO);
-	if (!intelHDA.initialize(true))
-	{
-		IORecursiveLockUnlock(g_lock);
-		return NULL;
-	}
-
-	UInt32 layoutID = intelHDA.getLayoutID();
-	if (-1 == layoutID)
-	{
-		IORecursiveLockUnlock(g_lock);
-		return NULL;
-	}
-
-	Configuration mainConfig(this->getProperty(kCodecProfile), &intelHDA, kCodecCommanderProbeInitKey);
-	UInt16 codecBits = mainConfig.getCodecAddressMask();
-	DebugLog("configured codecBits: 0x%04x\n", codecBits);
-	DebugLog("ioDelayCount: %u\n", ioDelayCount);
-
-//REVIEW: this actually works, but is a bit slow...
-	if (codecBits == (UInt16)-1)
-	{
-		UInt16 probedCodecBits = 0;
-		for (unsigned i = 0; i < HDA_MAX_CODECS; i++)
-		{
-			UInt32 codecVendorId = -1;
-			if (intelHDA.setCodecAddress(i))
-				codecVendorId = intelHDA.getCodecVendorId();
-			DebugLog("codec at address %u: 0x%08x\n", i, codecVendorId);
-			if (-1 != codecVendorId)
-				probedCodecBits |= 1<<i;
-		}
-		DebugLog("probedCodecBits = 0x%04x\n", probedCodecBits);
-		codecBits = probedCodecBits;
-	}
-//#endif
-	DebugLog("ioDelayCount: %u\n", ioDelayCount);
-
-#ifdef DOES_NOT_WORK
-	intelHDA.resetHDA();
-	UInt16 codecBits = intelHDA.getSTATESTS();
-	DebugLog("STATESTS 0x%04x\n", codecBits);
-//REVIEW: temp
-	codecBits = (1<<0) | (1<<3);  // this is what I know now...
-#endif
-
-	for (UInt16 codecAddress = 0; codecAddress < HDA_MAX_CODECS; codecAddress++)
-	{
-		if (!(codecBits & (1<<codecAddress)))
-			continue;	// codec not present
-
-		DebugLog("ProbeInit checking codec address %u\n", codecAddress);
-
-		intelHDA.setCodecAddress(codecAddress);
-
-		DebugLog("ProbeInit codec 0x%08x\n", intelHDA.getCodecVendorId());
-
-		Configuration config(this->getProperty(kCodecProfile), &intelHDA, kCodecCommanderProbeInitKey);
-		DebugLog("ioDelayCount: %u\n", ioDelayCount);
-
-		unsigned commandsSent = 0;
-		OSArray* commands = config.getCustomCommands();
-		unsigned count = commands->getCount();
-		for (unsigned i = 0; i < count; i++)
-		{
-			OSData* data = (OSData*)commands->getObject(i);
-			CustomCommand* customCommand = (CustomCommand*)data->getBytesNoCopy();
-			if (customCommand->OnProbe &&
-				(-1 == customCommand->layoutID || layoutID == customCommand->layoutID))
-			{
-				for (int i = 0; i < customCommand->CommandCount; i++)
-				{
-					DebugLog("--> custom probe command 0x%08x\n", customCommand->Commands[i]);
-					intelHDA.sendCommand(customCommand->Commands[i]);
-					DebugLog("ioDelayCount: %u\n", ioDelayCount);
-				}
-				commandsSent++;
-			}
-		}
-
-		DebugLog("ioDelayCount: %u\n", ioDelayCount);
-		if (commandsSent)
-			AlwaysLog("CodecCommanderProbeInit sent %d command(s) during probe (0x%08x)\n", commandsSent, intelHDA.getCodecVendorId());
-	}
-
-	DebugLog("ioDelayCount: %u\n", ioDelayCount);
-
-	IORecursiveLockUnlock(g_lock);
-
-	return NULL;
-}
-
-OSDefineMetaClassAndStructors(CodecCommanderProbeInit2, IOService)
-
 static UInt32 getNumberFromArray(OSArray* array, unsigned index)
 {
 	OSNumber* num = OSDynamicCast(OSNumber, array->getObject(index));
@@ -807,9 +707,9 @@ static UInt32 getNumberFromArray(OSArray* array, unsigned index)
 	return num->unsigned32BitValue();
 }
 
-IOService* CodecCommanderProbeInit2::probe(IOService* provider, SInt32* score)
+IOService* CodecCommanderProbeInit::probe(IOService* provider, SInt32* score)
 {
-	DebugLog("CodecCommanderProbeInit2::probe\n");
+	DebugLog("CodecCommanderProbeInit::probe\n");
 
 	IORecursiveLockLock(g_lock);
 
@@ -842,8 +742,7 @@ IOService* CodecCommanderProbeInit2::probe(IOService* provider, SInt32* score)
 	{
 		OSData* data = (OSData*)commands->getObject(i);
 		CustomCommand* customCommand = (CustomCommand*)data->getBytesNoCopy();
-		if (customCommand->OnProbe &&
-			(-1 == customCommand->layoutID || layoutID == customCommand->layoutID))
+		if (-1 == customCommand->layoutID || layoutID == customCommand->layoutID)
 		{
 			for (int i = 0; i < customCommand->CommandCount; i++)
 			{

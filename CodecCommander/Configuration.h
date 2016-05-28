@@ -33,7 +33,6 @@ typedef struct
     bool OnInit;    // Execute command on initialization
     bool OnSleep;   // Execute command on sleep
     bool OnWake;    // Execute command on wake
-    bool OnProbe;   // Execute command on probe
     UInt32 layoutID;// layout-id filter
     UInt32 CommandCount;
     UInt32 Commands[0]; // 32-bit verb to execute (Codec Address will be filled in)

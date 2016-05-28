@@ -22,32 +22,6 @@
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>${MODULE_VERSION}</string>
-	<key>#IOKitPersonalities</key>
-	<dict>
-		<key>CodecCommanderProbeInit</key>
-		<dict>
-			<key>CFBundleIdentifier</key>
-			<string>${MODULE_NAME}</string>
-			<key>Codec Profile</key>
-			<dict>
-				<key>Default</key>
-				<dict>
-					<key>CodecAddressMask</key>
-					<integer>1</integer>
-					<key>Custom Commands</key>
-					<array/>
-				</dict>
-			</dict>
-			<key>IOClass</key>
-			<string>CodecCommanderProbeInit</string>
-			<key>IOPCIClassMatch</key>
-			<string>0x04010000&amp;0xFFFD0000</string>
-			<key>IOProviderClass</key>
-			<string>IOPCIDevice</string>
-			<key>IOProbeScore</key>
-			<integer>5000</integer>
-		</dict>
-	</dict>
 	<key>IOKitPersonalities</key>
 	<dict>
 		<key>CodecCommanderResidency</key>
@@ -403,7 +377,7 @@
 			<key>IOUserClientClass</key>
 			<string>CodecCommanderClient</string>
 		</dict>
-		<key>CodecCommanderProbeInit2</key>
+		<key>CodecCommanderProbeInit</key>
 		<dict>
 			<key>CFBundleIdentifier</key>
 			<string>${MODULE_NAME}</string>
@@ -416,7 +390,7 @@
 				</dict>
 			</dict>
 			<key>IOClass</key>
-			<string>CodecCommanderProbeInit2</string>
+			<string>CodecCommanderProbeInit</string>
 			<key>IOProviderClass</key>
 			<string>IOHDACodecDevice</string>
 			<key>IOProbeScore</key>

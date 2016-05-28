@@ -9,6 +9,7 @@ if [ -t 0 ]; then
 fi
 
 declare -a g_configDefault
+declare -a g_configFill
 function add_to_array()
 # $1 is node
 # $2 is payload
@@ -17,16 +18,19 @@ function add_to_array()
     if [[ -z "${g_configDefault[$1]}" ]]; then
         #echo initial set node: $1
         g_configDefault[$1]=0
+        g_configFill[$1]=0
     fi
-    let cur=g_configDefault[$1]
-    g_configDefault[$1]=$(( $cur | ($2 << $3) ))
+    local cur=g_configDefault[$1]
+    g_configDefault[$1]=$(( $cur | ($2<<$3) ))
+    local fill=${g_configFill[$1]}
+    g_configFill[$1]=$(( $fill | (0x1<<$3) ))
 }
 
 declare -a g_unknownVerbs
 function add_to_unknown()
 # $1 is verb data
 {
-    count=${#g_unkownVerbs[@]}
+    local count=${#g_unkownVerbs[@]}
     g_unkownVerbs[$count]=$1
 }
 
@@ -74,31 +78,68 @@ if [[ -z "$1" && ${#g_configDefault[@]} -ne 0 ]]; then
     echo Config Data:
 fi
 if [[ -z "$1" || "$1" == "config" ]]; then
-    let i=0
-    while [[ $i -lt 256 ]]; do
-        if [[ ! -z "${g_configDefault[$i]}" ]]; then
-            printf "0x%x, 0x%08x,\n" $i ${g_configDefault[$i]}
+    let i_temp=0
+    while [[ $i_temp -lt 256 ]]; do
+    if [[ ! -z "${g_configDefault[$i_temp]}" && ${g_configFill[$i_temp]} -eq 0x01010101 ]]; then
+            printf "  0x%02x, 0x%08x,\n" $i_temp ${g_configDefault[$i_temp]}
         fi
-        ((i++))
+        ((i_temp++))
     done
 fi
 
-count=${#g_unkownVerbs[@]}
-if [[ -z "$1" && $count -ne 0 ]]; then
+let extra_unknown=0
+let i_temp=0
+while [[ $i_temp -lt 256 ]]; do
+    if [[ ! -z "${g_configFill[$i_temp]}" ]]; then
+        if [[ ${g_configFill[$i_temp]} -ne 0x1111 ]]; then
+            ((extra_unknown++))
+        fi
+    fi
+    ((i_temp++))
+done
+
+
+count_temp=${#g_unkownVerbs[@]}
+total_temp=$(($count_temp+$extra_unknown))
+if [[ -z "$1" && $total_temp -ne 0 ]]; then
     echo Unknown Verbs:
 fi
 if [[ -z "$1" || "$1" == "other" ]]; then
-    let i=0
-    while [[ $i -lt $count ]]; do
-        new="$(printf "%08x" ${g_unkownVerbs[$i]})"
-        if [[ -z "$unknown" ]]; then
-            unknown=$new
-        else
-            unknown="$unknown $new"
+    # output incomplete configDefaults
+    let i_temp=0
+    while [[ $i_temp -lt 256 ]]; do
+        if [[ ! -z "${g_configFill[$i_temp]}" && ${g_configFill[$i_temp]} -ne 0x01010101 ]]; then
+            x=${g_configDefault[$i_temp]}
+            fill=${g_configFill[$i_temp]}
+            if [[ $(($fill & 0x01)) -ne 0 ]]; then
+                new="$(printf "%08x" $(( ($i_temp<<20) | (0x71c<<8) | (($x>>0)&0xFF) )))"
+                if [[ -z "$unknown" ]]; then unknown=$new; else unknown="$unknown $new"; fi
+            fi
+            if [[ $(($fill & 0x0100))  -ne 0 ]]; then
+                new="$(printf "%08x" $(( ($i_temp<<20) | (0x71d<<8) | (($x>>8)&0xFF) )))"
+                if [[ -z "$unknown" ]]; then unknown=$new; else unknown="$unknown $new"; fi
+            fi
+            if [[ $(($fill & 0x010000)) -ne 0 ]]; then
+                new="$(printf "%08x" $(( ($i_temp<<20) | (0x71e<<8) | (($x>>16)&0xFF) )))"
+                if [[ -z "$unknown" ]]; then unknown=$new; else unknown="$unknown $new"; fi
+            fi
+            if [[ $(($fill & 0x01000000)) -ne 0 ]]; then
+                new="$(printf "%08x" $(( ($i_temp<<20) | (0x71f<<8) | (($x>>24)&0xFF) )))"
+                if [[ -z "$unknown" ]]; then unknown=$new; else unknown="$unknown $new"; fi
+            fi
         fi
-        ((i++))
+        ((i_temp++))
     done
-    if [[ $count -gt 0 ]]; then
-        printf "%s\n" "$unknown" | xxd -r -p | xxd -i -c 16
+    # output other verbs (non-config default)
+    let i_temp=0
+    while [[ $i_temp -lt $count_temp ]]; do
+        new="$(printf "%08x" ${g_unkownVerbs[$i_temp]})"
+        if [[ -z "$unknown" ]]; then unknown=$new; else unknown="$unknown $new"; fi
+        ((i_temp++))
+    done
+    if [[ $total_temp -gt 0 ]]; then
+        printf "%s\n" "$unknown" | xxd -r -p | xxd -i -c 4
     fi
 fi
+
+

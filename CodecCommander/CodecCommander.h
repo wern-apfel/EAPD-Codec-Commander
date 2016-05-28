@@ -158,16 +158,6 @@ public:
 	virtual IOService* probe(IOService* provider, SInt32* score);
 };
 
-class CodecCommanderProbeInit2 : public IOService
-{
-	typedef IOService super;
-	OSDeclareDefaultStructors(CodecCommanderProbeInit2)
-
-public:
-	// standard IOKit methods
-	virtual IOService* probe(IOService* provider, SInt32* score);
-};
-
 class CodecCommanderClient : public IOUserClient
 {
 	/*
