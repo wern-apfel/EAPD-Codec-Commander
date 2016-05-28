@@ -188,9 +188,11 @@ By default HDMI codecs re disabled in order to prevent CC attaching on them. If 
 
 ### Changelog
 
-May 7, 2016 v2.6.1
+May 28, 2016 v2.6.1
 
 - Added CodecCommanderProbeInit functionality, which allows custom pinconfig, normally done with AppleHDAHardwareConfigDriver patches, to be accomplished with CodecCommander and custom SSDT.  With this feature, AppleHDA patching can be accomplished only with .zml.zlib files in AppleHDA.kext/Contents/Resources and Clover patches.  No need to provide a patched AppleHDAHardwareConfigDriver (nor IOKitPersonality injector).
+
+- There are a few useful scripts to help convert PinConfig data: gen_ahhcd.sh, convert.sh, and extract_hda.sh
 
 - Some optimization regarding IODelay calls while sending codec verbs.
 
