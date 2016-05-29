@@ -116,7 +116,7 @@ for ((i=3; i<=$#; i++)); do
     add_codec "${!i}"
 done
 
-echo [dbg] g_codecFilter: ${g_codecFilter[*]}
+#echo [dbg] g_codecFilter: ${g_codecFilter[*]}
 
 # determine plist to scan
 plist="$hda"/Contents/PlugIns/AppleHDAHardwareConfigDriver.kext/Contents/Info.plist
@@ -124,7 +124,7 @@ if [[ ! -e "$plist" ]]; then
     plist="$hda"/Contents/Info.plist
 fi
 
-echo [dbg] plist: "$plist"
+#echo [dbg] plist: "$plist"
 
 if [[ ! -e $plist ]]; then
     echo Info.plist at $plist does not exist
@@ -189,7 +189,7 @@ for ((i=0; 1; i++)); do
     fi
 done
 
-echo [dbg] g_layoutList: ${g_layoutList[*]}
+#echo [dbg] g_layoutList: ${g_layoutList[*]}
 
 for ((i=0; i<${#g_layoutList[@]}; i++)); do
     # copy available layout file
@@ -224,7 +224,7 @@ for layout in "$extract"/layout*.plist; do
                 break
             fi
             if [[ `check_codec $codec` != "true" ]]; then
-                echo [dbg] $layout: deleting \"$prefix\" for codec $codec
+                #echo [dbg] $layout: deleting \"$prefix\" for codec $codec
                 /usr/libexec/PlistBuddy -c "Delete \"$prefix\"" $layout
                 ((j--))
             fi
@@ -242,7 +242,7 @@ for layout in "$extract"/layout*.plist; do
         fi
         test=`/usr/libexec/PlistBuddy -c "Print \"$prefix:CodecID:0\"" $layout 2>&1`
         if [[ "$test" == *"Does Not Exist"* ]]; then
-            echo [dbg] $layout: deleting \"$prefix\" \($pathmap\)
+            #echo [dbg] $layout: deleting \"$prefix\" \($pathmap\)
             /usr/libexec/PlistBuddy -c "Delete \"$prefix\"" $layout
             ((i--))
         else
@@ -251,7 +251,7 @@ for layout in "$extract"/layout*.plist; do
     done
 done
 
-echo [dbg] g_pathmapList: ${g_pathmapList[*]}
+#echo [dbg] g_pathmapList: ${g_pathmapList[*]}
 
 # copy available Platforms
 if [[ -e Platforms.zml.zlib ]]; then
@@ -272,10 +272,11 @@ for ((i=0; 1; i++)); do
         break
     fi
     if [[ `check_pathmap $pathmap` != "true" ]]; then
-        echo [dbg] Platforms.plist: deleting \":PathMaps:$i\" \($pathmap\)
+        #echo [dbg] Platforms.plist: deleting \":PathMaps:$i\" \($pathmap\)
         /usr/libexec/PlistBuddy -c "Delete :PathMaps:$i" $plist
         ((i--))
     fi
 done
 
+echo "Extracted files in $extract:"
 ls -l "$extract"
