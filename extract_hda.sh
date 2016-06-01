@@ -9,12 +9,13 @@ if [[ "$#" -lt 3 ]]; then
     echo "{AppleHDA-path} is path of patched AppleHDA.kext or AppleHDA injector"
     echo "{name} is \"Resources\" folder suffix to be created for extracted files (Extract_name)"
     echo "Following the fixed arguments, are one or more codec ids, usually specified in hex, such as 0x10ec0892"
+    echo "Specifiying zero (0) for a codec id, will result in it matching all that are present"
     echo
     echo "Examples:"
     echo "  $0 ~/Downloads/realtekALC.kext ALC892 0x10ec0892"
     echo "  $0 ~/Downloads/AppleHDA.kext ALC280 0x10ec0892"
-    echo "  $0 ~/Projects/probook.git/AppleHDA_ProBook.kext ProBook 0x10ec0282 0x10ec0280 \\"
-    echo "      0x14f150f4 0x111d76d1 0x111D76D9 0x111D76e0 0x111D7605 0x111D7695"
+    echo "  $0 ~/Projects/probook.git/AppleHDA_ProBook.kext ProBook 0x10ec0282 0x10ec0280"
+    echo "  $0 ~/Projects/probook.git/AppleHDA_ProBook.kext ProBook 0"
     exit
 fi
 
@@ -34,7 +35,7 @@ function check_codec()
     local count=${#g_codecFilter[@]}
     local i
     for((i=0; i<$count; i++)); do
-    if [[ "$1" -eq ${g_codecFilter[$i]} ]]; then
+    if [[ "$1" -eq ${g_codecFilter[$i]} || ${g_codecFilter[$i]} -eq 0 ]]; then
         break
     fi
     done
@@ -122,6 +123,9 @@ done
 plist="$hda"/Contents/PlugIns/AppleHDAHardwareConfigDriver.kext/Contents/Info.plist
 if [[ ! -e "$plist" ]]; then
     plist="$hda"/Contents/Info.plist
+fi
+if [[ ! -e "$plist" ]]; then
+    plist=./Info.plist
 fi
 
 #echo [dbg] plist: "$plist"
