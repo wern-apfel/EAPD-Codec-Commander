@@ -130,9 +130,11 @@ fi
 
 #echo [dbg] plist: "$plist"
 
-if [[ ! -e $plist ]]; then
-    echo Info.plist at $plist does not exist
-    exit
+if [[ ! -e "$plist" ]]; then
+    if [[ ! -e "./hdaconfig.txt" ]]; then
+        echo "Info.plist at $plist does not exist (and no hdaconfig.txt)"
+        exit
+    fi
 fi
 
 if [[ ! -d "$extract" ]]; then
@@ -154,23 +156,42 @@ cat >"$extract"/ahhcd.plist <<ahhcd_starter_plist
 ahhcd_starter_plist
 
 ahhcd_count=0
-# use PlistBuddy to look at the Info.plist
-for ((i=0; 1; i++)); do
-    prefix=":IOKitPersonalities:HDA Hardware Config Resource:HDAConfigDefault:$i"
-    codec=`/usr/libexec/PlistBuddy -c "Print \"$prefix:CodecID\"" $plist 2>&1`
-    if [[ "$codec" == *"Does Not Exist"* ]]; then
-        break
-    fi
+if [[ -e "$plist" ]]; then
+    # use PlistBuddy to look at the Info.plist
+    for ((i=0; 1; i++)); do
+        prefix=":IOKitPersonalities:HDA Hardware Config Resource:HDAConfigDefault:$i"
+        codec=`/usr/libexec/PlistBuddy -c "Print \"$prefix:CodecID\"" $plist 2>&1`
+        if [[ "$codec" == *"Does Not Exist"* ]]; then
+            break
+        fi
+        if [[ `check_codec $codec` == 'true' ]]; then
+            merge_entry "$prefix" $plist "HDAConfigDefault:$ahhcd_count" "$extract"/ahhcd.plist
+            ((ahhcd_count++))
+            layout=`/usr/libexec/PlistBuddy -c "Print \"$prefix:LayoutID\"" $plist 2>&1`
+            if [[ "$layout" != *"Does Not Exist"* ]]; then
+                add_layout "$layout"
+            fi
+        fi
+        #printf "[dbg] found codec: 0x%x\n" $codec
+    done
+fi
+
+# also look at the root (AppleHDAPatcher style hdaconfig.txt as Info.plist)
+plist=hdaconfig.txt
+prefix=""
+codec=`/usr/libexec/PlistBuddy -c "Print \"$prefix:CodecID\"" $plist 2>&1`
+if [[ "$codec" != *"Does Not Exist"* ]]; then
     if [[ `check_codec $codec` == 'true' ]]; then
         merge_entry "$prefix" $plist "HDAConfigDefault:$ahhcd_count" "$extract"/ahhcd.plist
         ((ahhcd_count++))
         layout=`/usr/libexec/PlistBuddy -c "Print \"$prefix:LayoutID\"" $plist 2>&1`
-        if [[ "$layout" != *"Does Not Exist"* ]]; then
-            add_layout "$layout"
-        fi
     fi
-    #printf "found codec: 0x%x\n" $codec
-done
+    if [[ "$layout" != *"Does Not Exist"* ]]; then
+        add_layout "$layout"
+    fi
+fi
+#printf "[dbg] found codec: 0x%x\n" $codec
+
 
 # look at PostConstructionInitialization for additional layout-ids (and perhaps other data)
 pci_count=0
@@ -193,13 +214,16 @@ for ((i=0; 1; i++)); do
     fi
 done
 
-#echo [dbg] g_layoutList: ${g_layoutList[*]}
+echo [dbg] g_layoutList: ${g_layoutList[*]}
 
 for ((i=0; i<${#g_layoutList[@]}; i++)); do
     # copy available layout file
     layout=${g_layoutList[$i]}
-    if [[ -e $layout$layout.zml.zlib ]]; then
+    echo layout$layout.zml.zlib
+    if [[ -e layout$layout.zml.zlib ]]; then
         zlib inflate layout$layout.zml.zlib >"$extract"/layout$layout.plist
+    elif [[ -e layout$layout.xml.zlib ]]; then
+        zlib inflate layout$layout.xml.zlib >"$extract"/layout$layout.plist
     elif [[ -e $1/Contents/Resources/layout$layout.xml.zlib ]]; then
         zlib inflate $1/Contents/Resources/layout$layout.xml.zlib >"$extract"/layout$layout.plist
     elif [[ -e $1/Contents/Resources/layout$layout.xml ]]; then
@@ -260,6 +284,8 @@ done
 # copy available Platforms
 if [[ -e Platforms.zml.zlib ]]; then
     zlib inflate Platforms.zml.zlib >"$extract"/Platforms.plist
+elif [[ -e Platforms.xml.zlib ]]; then
+    zlib inflate Platforms.xml.zlib >"$extract"/Platforms.plist
 elif [[ -e $1/Contents/Resources/Platforms.xml.zlib ]]; then
     zlib inflate $1/Contents/Resources/Platforms.xml.zlib >"$extract"/Platforms.plist
 elif [[ -e $1/Contents/Resources/Platforms.xml ]]; then
