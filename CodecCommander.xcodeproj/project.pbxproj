@@ -16,15 +16,6 @@
 		D4FA53E11A07C8E1000DD257 /* Configuration.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D4FA53E01A07C8E1000DD257 /* Configuration.cpp */; };
 		D4FB21F71A0CEBE1005D6019 /* IntelHDA.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D4FB21F61A0CEBE1005D6019 /* IntelHDA.cpp */; };
 		D4FD9E041A039E550095AA5A /* IntelHDA.h in Headers */ = {isa = PBXBuildFile; fileRef = D4FD9E031A039E550095AA5A /* IntelHDA.h */; };
-		ED1EDDF31CC7E2700004F8F0 /* SSDT-ALC280.dsl in Resources */ = {isa = PBXBuildFile; fileRef = ED1EDDF21CC7E2700004F8F0 /* SSDT-ALC280.dsl */; };
-		ED789AF41CFA1A840067F666 /* gen_ahhcd.sh in Resources */ = {isa = PBXBuildFile; fileRef = ED789AED1CFA1A840067F666 /* gen_ahhcd.sh */; };
-		ED789AF51CFA1A840067F666 /* extract_hda.sh in Resources */ = {isa = PBXBuildFile; fileRef = ED789AEE1CFA1A840067F666 /* extract_hda.sh */; };
-		ED789AF61CFA1A840067F666 /* convert.sh in Resources */ = {isa = PBXBuildFile; fileRef = ED789AEF1CFA1A840067F666 /* convert.sh */; };
-		ED789AF71CFA1A840067F666 /* config_dump.sh in Resources */ = {isa = PBXBuildFile; fileRef = ED789AF01CFA1A840067F666 /* config_dump.sh */; };
-		ED789AF81CFA1A840067F666 /* eapd_dump.sh in Resources */ = {isa = PBXBuildFile; fileRef = ED789AF11CFA1A840067F666 /* eapd_dump.sh */; };
-		ED789AF91CFA1A840067F666 /* node_dump.sh in Resources */ = {isa = PBXBuildFile; fileRef = ED789AF21CFA1A840067F666 /* node_dump.sh */; };
-		ED789AFA1CFA1A840067F666 /* widget_dump.sh in Resources */ = {isa = PBXBuildFile; fileRef = ED789AF31CFA1A840067F666 /* widget_dump.sh */; };
-		EDA1E4191C8DC4AD009C880D /* SSDT-ALC668.dsl in Resources */ = {isa = PBXBuildFile; fileRef = EDA1E4181C8DC4AD009C880D /* SSDT-ALC668.dsl */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -264,15 +255,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				ED789AF91CFA1A840067F666 /* node_dump.sh in Resources */,
-				EDA1E4191C8DC4AD009C880D /* SSDT-ALC668.dsl in Resources */,
-				ED1EDDF31CC7E2700004F8F0 /* SSDT-ALC280.dsl in Resources */,
-				ED789AFA1CFA1A840067F666 /* widget_dump.sh in Resources */,
-				ED789AF81CFA1A840067F666 /* eapd_dump.sh in Resources */,
-				ED789AF71CFA1A840067F666 /* config_dump.sh in Resources */,
-				ED789AF51CFA1A840067F666 /* extract_hda.sh in Resources */,
-				ED789AF41CFA1A840067F666 /* gen_ahhcd.sh in Resources */,
-				ED789AF61CFA1A840067F666 /* convert.sh in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
