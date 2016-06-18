@@ -9,12 +9,13 @@ if [[ "$#" -lt 3 ]]; then
     echo "{AppleHDA-path} is path of patched AppleHDA.kext or AppleHDA injector"
     echo "{name} is \"Resources\" folder suffix to be created for extracted files (Extract_name)"
     echo "Following the fixed arguments, are one or more codec ids, usually specified in hex, such as 0x10ec0892"
+    echo "Specifiying zero (0) for a codec id, will result in it matching all that are present"
     echo
     echo "Examples:"
     echo "  $0 ~/Downloads/realtekALC.kext ALC892 0x10ec0892"
     echo "  $0 ~/Downloads/AppleHDA.kext ALC280 0x10ec0892"
-    echo "  $0 ~/Projects/probook.git/AppleHDA_ProBook.kext ProBook 0x10ec0282 0x10ec0280 \\"
-    echo "      0x14f150f4 0x111d76d1 0x111D76D9 0x111D76e0 0x111D7605 0x111D7695"
+    echo "  $0 ~/Projects/probook.git/AppleHDA_ProBook.kext ProBook 0x10ec0282 0x10ec0280"
+    echo "  $0 ~/Projects/probook.git/AppleHDA_ProBook.kext ProBook 0"
     exit
 fi
 
@@ -34,7 +35,7 @@ function check_codec()
     local count=${#g_codecFilter[@]}
     local i
     for((i=0; i<$count; i++)); do
-    if [[ "$1" -eq ${g_codecFilter[$i]} ]]; then
+    if [[ "$1" -eq ${g_codecFilter[$i]} || ${g_codecFilter[$i]} -eq 0 ]]; then
         break
     fi
     done
@@ -116,19 +117,24 @@ for ((i=3; i<=$#; i++)); do
     add_codec "${!i}"
 done
 
-echo [dbg] g_codecFilter: ${g_codecFilter[*]}
+#echo [dbg] g_codecFilter: ${g_codecFilter[*]}
 
 # determine plist to scan
 plist="$hda"/Contents/PlugIns/AppleHDAHardwareConfigDriver.kext/Contents/Info.plist
 if [[ ! -e "$plist" ]]; then
     plist="$hda"/Contents/Info.plist
 fi
+if [[ ! -e "$plist" ]]; then
+    plist=./Info.plist
+fi
 
-echo [dbg] plist: "$plist"
+#echo [dbg] plist: "$plist"
 
-if [[ ! -e $plist ]]; then
-    echo Info.plist at $plist does not exist
-    exit
+if [[ ! -e "$plist" ]]; then
+    if [[ ! -e "./hdaconfig.txt" ]]; then
+        echo "Info.plist at $plist does not exist (and no hdaconfig.txt)"
+        exit
+    fi
 fi
 
 if [[ ! -d "$extract" ]]; then
@@ -150,23 +156,42 @@ cat >"$extract"/ahhcd.plist <<ahhcd_starter_plist
 ahhcd_starter_plist
 
 ahhcd_count=0
-# use PlistBuddy to look at the Info.plist
-for ((i=0; 1; i++)); do
-    prefix=":IOKitPersonalities:HDA Hardware Config Resource:HDAConfigDefault:$i"
-    codec=`/usr/libexec/PlistBuddy -c "Print \"$prefix:CodecID\"" $plist 2>&1`
-    if [[ "$codec" == *"Does Not Exist"* ]]; then
-        break
-    fi
+if [[ -e "$plist" ]]; then
+    # use PlistBuddy to look at the Info.plist
+    for ((i=0; 1; i++)); do
+        prefix=":IOKitPersonalities:HDA Hardware Config Resource:HDAConfigDefault:$i"
+        codec=`/usr/libexec/PlistBuddy -c "Print \"$prefix:CodecID\"" $plist 2>&1`
+        if [[ "$codec" == *"Does Not Exist"* ]]; then
+            break
+        fi
+        if [[ `check_codec $codec` == 'true' ]]; then
+            merge_entry "$prefix" $plist "HDAConfigDefault:$ahhcd_count" "$extract"/ahhcd.plist
+            ((ahhcd_count++))
+            layout=`/usr/libexec/PlistBuddy -c "Print \"$prefix:LayoutID\"" $plist 2>&1`
+            if [[ "$layout" != *"Does Not Exist"* ]]; then
+                add_layout "$layout"
+            fi
+        fi
+        #printf "[dbg] found codec: 0x%x\n" $codec
+    done
+fi
+
+# also look at the root (AppleHDAPatcher style hdaconfig.txt as Info.plist)
+plist=hdaconfig.txt
+prefix=""
+codec=`/usr/libexec/PlistBuddy -c "Print \"$prefix:CodecID\"" $plist 2>&1`
+if [[ "$codec" != *"Does Not Exist"* ]]; then
     if [[ `check_codec $codec` == 'true' ]]; then
         merge_entry "$prefix" $plist "HDAConfigDefault:$ahhcd_count" "$extract"/ahhcd.plist
         ((ahhcd_count++))
         layout=`/usr/libexec/PlistBuddy -c "Print \"$prefix:LayoutID\"" $plist 2>&1`
-        if [[ "$layout" != *"Does Not Exist"* ]]; then
-            add_layout "$layout"
-        fi
     fi
-    #printf "found codec: 0x%x\n" $codec
-done
+    if [[ "$layout" != *"Does Not Exist"* ]]; then
+        add_layout "$layout"
+    fi
+fi
+#printf "[dbg] found codec: 0x%x\n" $codec
+
 
 # look at PostConstructionInitialization for additional layout-ids (and perhaps other data)
 pci_count=0
@@ -194,8 +219,11 @@ echo [dbg] g_layoutList: ${g_layoutList[*]}
 for ((i=0; i<${#g_layoutList[@]}; i++)); do
     # copy available layout file
     layout=${g_layoutList[$i]}
-    if [[ -e $layout$layout.zml.zlib ]]; then
+    echo layout$layout.zml.zlib
+    if [[ -e layout$layout.zml.zlib ]]; then
         zlib inflate layout$layout.zml.zlib >"$extract"/layout$layout.plist
+    elif [[ -e layout$layout.xml.zlib ]]; then
+        zlib inflate layout$layout.xml.zlib >"$extract"/layout$layout.plist
     elif [[ -e $1/Contents/Resources/layout$layout.xml.zlib ]]; then
         zlib inflate $1/Contents/Resources/layout$layout.xml.zlib >"$extract"/layout$layout.plist
     elif [[ -e $1/Contents/Resources/layout$layout.xml ]]; then
@@ -224,7 +252,7 @@ for layout in "$extract"/layout*.plist; do
                 break
             fi
             if [[ `check_codec $codec` != "true" ]]; then
-                echo [dbg] $layout: deleting \"$prefix\" for codec $codec
+                #echo [dbg] $layout: deleting \"$prefix\" for codec $codec
                 /usr/libexec/PlistBuddy -c "Delete \"$prefix\"" $layout
                 ((j--))
             fi
@@ -242,7 +270,7 @@ for layout in "$extract"/layout*.plist; do
         fi
         test=`/usr/libexec/PlistBuddy -c "Print \"$prefix:CodecID:0\"" $layout 2>&1`
         if [[ "$test" == *"Does Not Exist"* ]]; then
-            echo [dbg] $layout: deleting \"$prefix\" \($pathmap\)
+            #echo [dbg] $layout: deleting \"$prefix\" \($pathmap\)
             /usr/libexec/PlistBuddy -c "Delete \"$prefix\"" $layout
             ((i--))
         else
@@ -251,11 +279,13 @@ for layout in "$extract"/layout*.plist; do
     done
 done
 
-echo [dbg] g_pathmapList: ${g_pathmapList[*]}
+#echo [dbg] g_pathmapList: ${g_pathmapList[*]}
 
 # copy available Platforms
 if [[ -e Platforms.zml.zlib ]]; then
     zlib inflate Platforms.zml.zlib >"$extract"/Platforms.plist
+elif [[ -e Platforms.xml.zlib ]]; then
+    zlib inflate Platforms.xml.zlib >"$extract"/Platforms.plist
 elif [[ -e $1/Contents/Resources/Platforms.xml.zlib ]]; then
     zlib inflate $1/Contents/Resources/Platforms.xml.zlib >"$extract"/Platforms.plist
 elif [[ -e $1/Contents/Resources/Platforms.xml ]]; then
@@ -272,10 +302,11 @@ for ((i=0; 1; i++)); do
         break
     fi
     if [[ `check_pathmap $pathmap` != "true" ]]; then
-        echo [dbg] Platforms.plist: deleting \":PathMaps:$i\" \($pathmap\)
+        #echo [dbg] Platforms.plist: deleting \":PathMaps:$i\" \($pathmap\)
         /usr/libexec/PlistBuddy -c "Delete :PathMaps:$i" $plist
         ((i--))
     fi
 done
 
+echo "Extracted files in $extract:"
 ls -l "$extract"
