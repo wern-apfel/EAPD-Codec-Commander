@@ -63,6 +63,11 @@ function parseConfig()
     printf "\tSequence: (0x%x)\n" $val
 }
 
+if [[ "$1" != "" ]]; then
+    parseConfig "$1"
+    exit
+fi
+
 rootNode=`findAudioRootNode`
 #echo $rootNode
 
