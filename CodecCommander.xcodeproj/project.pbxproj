@@ -52,6 +52,15 @@
 		D4FB21F61A0CEBE1005D6019 /* IntelHDA.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IntelHDA.cpp; sourceTree = "<group>"; };
 		D4FB21F81A0CED3E005D6019 /* Common.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Common.h; sourceTree = "<group>"; };
 		D4FD9E031A039E550095AA5A /* IntelHDA.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = IntelHDA.h; sourceTree = "<group>"; usesTabs = 1; };
+		ED1EDDF21CC7E2700004F8F0 /* SSDT-ALC280.dsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "SSDT-ALC280.dsl"; sourceTree = "<group>"; };
+		ED789AED1CFA1A840067F666 /* gen_ahhcd.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = gen_ahhcd.sh; sourceTree = "<group>"; };
+		ED789AEE1CFA1A840067F666 /* extract_hda.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = extract_hda.sh; sourceTree = "<group>"; };
+		ED789AEF1CFA1A840067F666 /* convert.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = convert.sh; sourceTree = "<group>"; };
+		ED789AF01CFA1A840067F666 /* config_dump.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = config_dump.sh; sourceTree = "<group>"; };
+		ED789AF11CFA1A840067F666 /* eapd_dump.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = eapd_dump.sh; sourceTree = "<group>"; };
+		ED789AF21CFA1A840067F666 /* node_dump.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = node_dump.sh; sourceTree = "<group>"; };
+		ED789AF31CFA1A840067F666 /* widget_dump.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = widget_dump.sh; sourceTree = "<group>"; };
+		EDA1E4181C8DC4AD009C880D /* SSDT-ALC668.dsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "SSDT-ALC668.dsl"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -79,9 +88,12 @@
 			children = (
 				849F78D71ACFC03600389EDA /* makefile */,
 				D42D3C0F1A595B8D006C4C8C /* README.md */,
+				ED1EDDF21CC7E2700004F8F0 /* SSDT-ALC280.dsl */,
 				84E686211C02AE6900638613 /* SSDT-ALC283.dsl */,
+				EDA1E4181C8DC4AD009C880D /* SSDT-ALC668.dsl */,
 				0C4B238314598AD20080D960 /* CodecCommander */,
 				D42D3C061A59558C006C4C8C /* CodecCommanderClient */,
+				ED789AEC1CFA1A690067F666 /* HDA tools */,
 				0C4B238014598AD20080D960 /* Frameworks */,
 				0C4B237F14598AD20080D960 /* Products */,
 			);
@@ -140,6 +152,20 @@
 				D42D3C0C1A5955CA006C4C8C /* hdaverb.h */,
 			);
 			path = CodecCommanderClient;
+			sourceTree = "<group>";
+		};
+		ED789AEC1CFA1A690067F666 /* HDA tools */ = {
+			isa = PBXGroup;
+			children = (
+				ED789AED1CFA1A840067F666 /* gen_ahhcd.sh */,
+				ED789AEF1CFA1A840067F666 /* convert.sh */,
+				ED789AEE1CFA1A840067F666 /* extract_hda.sh */,
+				ED789AF01CFA1A840067F666 /* config_dump.sh */,
+				ED789AF11CFA1A840067F666 /* eapd_dump.sh */,
+				ED789AF21CFA1A840067F666 /* node_dump.sh */,
+				ED789AF31CFA1A840067F666 /* widget_dump.sh */,
+			);
+			name = "HDA tools";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -277,7 +303,7 @@
 				);
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
-				MODULE_VERSION = 2.5.1;
+				MODULE_VERSION = 2.6.1;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx10.6;
 				SYMROOT = build/Products;
@@ -293,7 +319,7 @@
 				);
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
-				MODULE_VERSION = 2.5.1;
+				MODULE_VERSION = 2.6.1;
 				SDKROOT = macosx10.6;
 				SYMROOT = build/Products;
 			};
@@ -306,6 +332,8 @@
 				GCC_PREFIX_HEADER = "CodecCommander/CodecCommander-Prefix.pch";
 				INFOPLIST_FILE = "CodecCommander/CodecCommander-Info.plist";
 				MODULE_NAME = org.tw.CodecCommander;
+				MODULE_START = CodecCommander_Start;
+				MODULE_STOP = CodecCommander_Stop;
 				PRODUCT_NAME = CodecCommander;
 				STRIP_INSTALLED_PRODUCT = YES;
 			};
@@ -318,6 +346,8 @@
 				GCC_PREFIX_HEADER = "CodecCommander/CodecCommander-Prefix.pch";
 				INFOPLIST_FILE = "CodecCommander/CodecCommander-Info.plist";
 				MODULE_NAME = org.tw.CodecCommander;
+				MODULE_START = CodecCommander_Start;
+				MODULE_STOP = CodecCommander_Stop;
 				PRODUCT_NAME = CodecCommander;
 				STRIP_INSTALLED_PRODUCT = YES;
 			};

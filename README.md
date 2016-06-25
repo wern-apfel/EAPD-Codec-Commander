@@ -9,9 +9,12 @@ The main changes are:
 
 See SSDT-ALC283.dsl for an example configuration override.  The data there is the same as for the Info.plist data for ALC283.  But you can customize it for your own codec if needed.
 
+Also see SSDT-ALC668.dsl which overrides the custom commands for ALC668 to correct audio after booting Windows on some computers.
+
 By customizing via ACPI instead of modifying Info.plist, it can make upgrades to future versions of CodecCommander easier.  It also means that future profiles do not need to be added to the kext itself, since customization is handled externally.
 
-Other than ACPI configuration, the repositories are in sync.
+New in version 2.6.1, CodecCommander can be used to patch pin configurations instead of patching AppleHDAHardwareConfigDriver.kext
+
 
 Read the commit log for an idea on contributions from Dolnor, the-darkvoid, and RehabMan.
 
@@ -184,6 +187,30 @@ By default HDMI codecs re disabled in order to prevent CC attaching on them. If 
 				<string>Disabled HDMI</string>				
 
 ### Changelog
+
+May 28, 2016 v2.6.1
+
+- Added CodecCommanderProbeInit functionality, which allows custom pinconfig, normally done with AppleHDAHardwareConfigDriver patches, to be accomplished with CodecCommander and custom SSDT.  With this feature, AppleHDA patching can be accomplished only with .zml.zlib files in AppleHDA.kext/Contents/Resources and Clover patches.  No need to provide a patched AppleHDAHardwareConfigDriver (nor IOKitPersonality injector).
+
+- There are a few useful scripts to help convert PinConfig data: gen_ahhcd.sh, convert.sh, and extract_hda.sh
+
+- Some optimization regarding IODelay calls while sending codec verbs.
+
+- Fixed some multithread syncronization issues.
+
+- Custom configuration via RMCF (SSDT), can now be merged prior to specific profile selection by setting Version=0x020600 in your RMCF result.
+
+- By setting "LayoutID" in the custom command, Custom Commands can be specific to a layout-id.
+
+- Some code cleanup (avoiding OSCollectionIterator allocations with array iteration, removing unnecessary code from Release version)
+
+- Note: v2.6.0 was a WIP v2.6.1 and was not released
+
+
+Mar 11, 2016 v2.5.2
+
+-  Bug fix: Custom Commands tagged with On Wake=true, but On Init=false were still being sent.
+
 
 Feb 06, 2016 v2.5.1
 

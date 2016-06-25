@@ -22,6 +22,10 @@
 
 #include "Common.h"
 
+#ifdef DEBUG
+extern unsigned ioDelayCount;
+#endif
+
 // Intel HDA Verbs
 #define HDA_VERB_GET_PARAM		(UInt16)0xF00	// Get Parameter
 #define HDA_VERB_SET_PSTATE		(UInt16)0x705	// Set Power State
@@ -49,7 +53,13 @@
 #define HDA_PARM_PS_D3_HOT	(UInt8)0x03 // Powerstate D3Hot
 #define HDA_PARM_PS_D3_COLD (UInt8)0x04	// Powerstate D3Cold
 
+#define HDA_VERB_SET_CONFIG_DEFAULT_BYTES_0      (UInt16)0x71c
+#define HDA_VERB_SET_CONFIG_DEFAULT_BYTES_1      (UInt16)0x71d
+#define HDA_VERB_SET_CONFIG_DEFAULT_BYTES_2      (UInt16)0x71e
+#define HDA_VERB_SET_CONFIG_DEFAULT_BYTES_3      (UInt16)0x71f
+
 #define HDA_TYPE_AFG	1	// return from PARM_FUNCGRP is 1 for Audio
+#define HDA_MAX_CODECS	15	// maximum number of codecs supported (0-14)
 
 // Dynamic payload parameters
 #define HDA_PARM_AMP_GAIN_GET(Index, Left, Output) \
@@ -260,7 +270,9 @@ public:
 	// Destructor
 	~IntelHDA();
 
-	bool initialize();
+	bool initialize(bool regMapOnly = false);
+	bool setCodecAddress(UInt16 codecAddress);
+	UInt32 getLayoutID();
 
 	void applyIntelTCSEL();
 
@@ -272,12 +284,12 @@ public:
 	// Send a raw command (verb and payload combined)
 	UInt32 sendCommand(UInt32 command);
 
-	void resetCodec();
+	bool resetCodec();
 
-	inline UInt32 getCodecVendorId() { return mCodecVendorId; }
 	inline UInt8 getCodecAddress() { return mCodecAddress; }
 	inline UInt8 getCodecGroupType() { return mCodecGroupType; }
 
+	UInt32 getCodecVendorId();
 	UInt16 getVendorId();
 	UInt16 getDeviceId();
 	UInt32 getPCISubId();
@@ -285,6 +297,11 @@ public:
 
 	UInt8 getTotalNodes();
 	UInt8 getStartingNode();
+
+#ifdef DOES_NOT_WORK
+	UInt16 getSTATESTS() { return mRegMap->STATESTS_SDIWAKE; }
+	void resetHDA();
+#endif
 
 	inline IOPCIDevice* getPCIDevice() { return mDevice; }
 

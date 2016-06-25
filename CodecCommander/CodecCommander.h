@@ -52,11 +52,20 @@ enum
 	kClientNumMethods
 };
 
+extern "C"
+{
+	kern_return_t CodecCommander_Start(kmod_info_t*, void*);
+	kern_return_t CodecCommander_Stop(kmod_info_t*, void*);
+}
+
 class CodecCommanderResidency : public IOService
 {
 private:
 	typedef IOService super;
 	OSDeclareDefaultStructors(CodecCommanderResidency);
+
+	// standard IOKit methods
+	virtual bool start(IOService *provider);
 };
 
 class CodecCommander : public IOService
@@ -67,7 +76,9 @@ class CodecCommander : public IOService
 public:
     // standard IOKit methods
 	virtual bool init(OSDictionary *dictionary = 0);
-	virtual IOService* probe (IOService* provider, SInt32* score);
+#ifdef DEBUG
+	virtual IOService* probe(IOService* provider, SInt32* score);
+#endif
     virtual bool start(IOService *provider);
 	virtual void stop(IOService *provider);
 	
@@ -123,8 +134,10 @@ class CodecCommanderPowerHook : public IOService
 
 public:
 	// standard IOKit methods
+#ifdef DEBUG
 	virtual bool init(OSDictionary *dictionary = 0);
 	virtual IOService* probe (IOService* provider, SInt32* score);
+#endif
 	virtual bool start(IOService *provider);
 	virtual void stop(IOService* provider);
 
@@ -135,6 +148,15 @@ private:
 	CodecCommander* mCodecCommander = NULL;
 };
 
+class CodecCommanderProbeInit : public IOService
+{
+	typedef IOService super;
+	OSDeclareDefaultStructors(CodecCommanderProbeInit)
+
+public:
+	// standard IOKit methods
+	virtual IOService* probe(IOService* provider, SInt32* score);
+};
 
 class CodecCommanderClient : public IOUserClient
 {
@@ -167,4 +189,5 @@ public:
 	/* External methods */
 	static IOReturn executeVerb(CodecCommander* target, void* reference, IOExternalMethodArguments* arguments);
 };
+
 #endif // __CodecCommander__

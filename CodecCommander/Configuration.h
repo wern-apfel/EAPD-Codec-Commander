@@ -24,14 +24,16 @@
 #include "IntelHDA.h"
 
 #define kRMCFCache "RMCF.cache"
-#define kCodecCommanderPowerHookKey "CodecCommanderPowerHook"
 #define kCodecCommanderKey "CodecCommander"
+#define kCodecCommanderPowerHookKey "CodecCommanderPowerHook"
+#define kCodecCommanderProbeInitKey "CodecCommanderProbeInit"
 
 typedef struct
 {
     bool OnInit;    // Execute command on initialization
     bool OnSleep;   // Execute command on sleep
     bool OnWake;    // Execute command on wake
+    UInt32 layoutID;// layout-id filter
     UInt32 CommandCount;
     UInt32 Commands[0]; // 32-bit verb to execute (Codec Address will be filled in)
 } CustomCommand;
@@ -39,6 +41,7 @@ typedef struct
 class Configuration
 {
     OSArray* mCustomCommands;
+    OSArray* mPinConfigDefault;
     
     bool mCheckInfinite;
     UInt16 mCheckInterval;
@@ -48,6 +51,7 @@ class Configuration
     bool mUpdateNodes, mSleepNodes;
     UInt16 mSendDelay;
     bool mDisable;
+    UInt16 mCodecAddressMask;
 
     static UInt32 parseInteger(const char* str);
     static OSDictionary* locateConfiguration(OSDictionary* profiles, UInt32 codecVendorId, UInt32 hdaSubsystemId);
@@ -71,6 +75,8 @@ public:
     inline UInt16 getCheckInterval() { return mCheckInterval; };
     inline OSArray* getCustomCommands() { return mCustomCommands; };
     inline bool getDisable() { return mDisable; }
+    inline UInt16 getCodecAddressMask() { return mCodecAddressMask; }
+    inline OSArray* getPinConfigDefault() { return mPinConfigDefault; }
 
     // Constructor
     Configuration(OSObject* codecProfiles, IntelHDA* intelHDA, const char* name);

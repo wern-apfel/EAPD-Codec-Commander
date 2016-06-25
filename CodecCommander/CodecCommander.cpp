@@ -37,7 +37,56 @@ static IOPMPowerState powerStateArray[ kPowerStateCount ] =
     { 1,kIOPMDeviceUsable, IOPMPowerOn, IOPMPowerOn, 0,0,0,0,0,0,0,0 }
 };
 
+static IORecursiveLock* g_lock;
+
+extern "C"
+{
+
+__attribute__((visibility("hidden")))
+kern_return_t CodecCommander_Start(kmod_info_t* ki, void * d)
+{
+	AlwaysLog("Version %s starting on OS X Darwin %d.%d.\n", ki->version, version_major, version_minor);
+
+	g_lock = IORecursiveLockAlloc();
+	if (!g_lock)
+		return KERN_FAILURE;
+
+	return KERN_SUCCESS;
+}
+
+__attribute__((visibility("hidden")))
+kern_return_t CodecCommander_Stop(kmod_info_t* ki, void * d)
+{
+	if (g_lock)
+	{
+		IORecursiveLockFree(g_lock);
+		g_lock = 0;
+	}
+
+	return KERN_SUCCESS;
+}
+
+} // extern "C"
+
 OSDefineMetaClassAndStructors(CodecCommanderResidency, IOService)
+
+bool CodecCommanderResidency::start(IOService *provider)
+{
+	// announce version
+	extern kmod_info_t kmod_info;
+
+	// place version/build info in ioreg properties RM,Build and RM,Version
+	char buf[128];
+	snprintf(buf, sizeof(buf), "%s %s", kmod_info.name, kmod_info.version);
+	setProperty("RM,Version", buf);
+#ifdef DEBUG
+	setProperty("RM,Build", "Debug-" LOGNAME);
+#else
+	setProperty("RM,Build", "Release-" LOGNAME);
+#endif
+
+	return super::start(provider);
+}
 
 OSDefineMetaClassAndStructors(CodecCommander, IOService)
 
@@ -92,15 +141,17 @@ bool CodecCommander::init(OSDictionary *dictionary)
     return true;
 }
 
+#ifdef DEBUG
 /******************************************************************************
  * CodecCommander::probe - Determine if the attached device is supported
  ******************************************************************************/
 IOService* CodecCommander::probe(IOService* provider, SInt32* score)
 {
 	DebugLog("Probe\n");
-	
+
 	return super::probe(provider, score);
 }
+#endif
 
 static void setNumberProperty(IOService* service, const char* key, UInt32 value)
 {
@@ -112,26 +163,12 @@ static void setNumberProperty(IOService* service, const char* key, UInt32 value)
 	}
 }
 
+
 /******************************************************************************
  * CodecCommander::start - start kernel extension and init PM
  ******************************************************************************/
 bool CodecCommander::start(IOService *provider)
 {
-	// announce version
-	extern kmod_info_t kmod_info;
-	IOLog("CodecCommander: Version %s starting on OS X Darwin %d.%d.\n", kmod_info.version, version_major, version_minor);
-	
-	// place version/build info in ioreg properties RM,Build and RM,Version
-	char buf[128];
-	snprintf(buf, sizeof(buf), "%s %s", kmod_info.name, kmod_info.version);
-	setProperty("RM,Version", buf);
-#ifdef DEBUG
-	setProperty("RM,Build", "Debug-" LOGNAME);
-#else
-	setProperty("RM,Build", "Release-" LOGNAME);
-#endif
-
-
     if (!provider || !super::start(provider))
 	{
 		DebugLog("Error loading kernel extension.\n");
@@ -141,22 +178,25 @@ bool CodecCommander::start(IOService *provider)
 	// cache the provider
 	mProvider = provider;
 
+	IORecursiveLockLock(g_lock);
 	mIntelHDA = new IntelHDA(provider, PIO);
 	if (!mIntelHDA || !mIntelHDA->initialize())
 	{
+		IORecursiveLockUnlock(g_lock);
 		AlwaysLog("Error initializing IntelHDA instance\n");
 		stop(provider);
 		return false;
 	}
-	
+
 	// Populate HDA properties for client matching
 	setNumberProperty(this, kCodecVendorID, mIntelHDA->getCodecVendorId());
 	setNumberProperty(this, kCodecAddress, mIntelHDA->getCodecAddress());
 	setNumberProperty(this, kCodecFuncGroupType, mIntelHDA->getCodecGroupType());
-	
+
 	mConfiguration = new Configuration(this->getProperty(kCodecProfile), mIntelHDA, kCodecCommanderKey);
 	if (!mConfiguration || mConfiguration->getDisable())
 	{
+		IORecursiveLockUnlock(g_lock);
 		AlwaysLog("stopping due to codec profile Disable flag\n");
 		stop(provider);
 		return false;
@@ -176,6 +216,7 @@ bool CodecCommander::start(IOService *provider)
 		mEAPDCapableNodes = OSArray::withCapacity(3);
 		if (!mEAPDCapableNodes)
 		{
+			IORecursiveLockUnlock(g_lock);
 			stop(provider);
 			return false;
 		}
@@ -207,6 +248,8 @@ bool CodecCommander::start(IOService *provider)
 	
 	// Execute any custom commands registered for initialization
 	customCommands(kStateInit);
+
+	IORecursiveLockUnlock(g_lock);
 	
     // init power state management & set state as PowerOn
     PMinit();
@@ -348,7 +391,9 @@ void CodecCommander::handleStateChange(IOAudioDevicePowerState newState)
 				}
 			}
 
-			customCommands(kStateWake);
+			if (!mColdBoot)
+				customCommands(kStateWake);
+
 			mEAPDPoweredDown = false;
 			break;
 	}
@@ -359,16 +404,21 @@ void CodecCommander::handleStateChange(IOAudioDevicePowerState newState)
  ******************************************************************************/
 void CodecCommander::customCommands(CodecCommanderState newState)
 {
-	OSCollectionIterator* iterator = OSCollectionIterator::withCollection(mConfiguration->getCustomCommands());
-	if (!iterator) return;
-	
-	while (OSData* data = OSDynamicCast(OSData, iterator->getNextObject()))
+	UInt32 layoutID = mIntelHDA->getLayoutID();
+
+	IORecursiveLockLock(g_lock);
+
+	OSArray* commands = mConfiguration->getCustomCommands();
+	unsigned count = commands->getCount();
+	for (unsigned i = 0; i < count; i++)
 	{
+		OSData* data = (OSData*)commands->getObject(i);
 		CustomCommand* customCommand = (CustomCommand*)data->getBytesNoCopy();
 
-		if ((customCommand->OnInit && (newState == kStateInit)) ||
+		if (((customCommand->OnInit && (newState == kStateInit)) ||
 			(customCommand->OnWake && (newState == kStateWake)) ||
-			(customCommand->OnSleep && (newState == kStateSleep)))
+			(customCommand->OnSleep && (newState == kStateSleep))) &&
+			(-1 == customCommand->layoutID || layoutID == customCommand->layoutID))
 		{
 			for (int i = 0; i < customCommand->CommandCount; i++)
 			{
@@ -377,8 +427,8 @@ void CodecCommander::customCommands(CodecCommanderState newState)
 			}
 		}
 	}
-	
-	iterator->release();
+
+	IORecursiveLockUnlock(g_lock);
 }
 
 /******************************************************************************
@@ -388,18 +438,20 @@ bool CodecCommander::setEAPD(UInt8 logicLevel)
 {
     // some codecs will produce loud pop when EAPD is enabled too soon, need custom delay until codec inits
     IOSleep(mConfiguration->getSendDelay());
-	
+
+	IORecursiveLockLock(g_lock);
+
     // for nodes supporting EAPD bit 1 in logicLevel defines EAPD logic state: 1 - enable, 0 - disable
-	OSCollectionIterator* iterator = OSCollectionIterator::withCollection(mEAPDCapableNodes);
-	if (!iterator) return true;
-	
+	unsigned count = mEAPDCapableNodes->getCount();
 	bool result = true;
-	while (OSNumber* nodeId = OSDynamicCast(OSNumber, iterator->getNextObject()))
+	for (unsigned i = 0; i < count; i++)
 	{
+		OSNumber* nodeId = (OSNumber*)mEAPDCapableNodes->getObject(i);
 		if (-1 == mIntelHDA->sendCommand(nodeId->unsigned8BitValue(), HDA_VERB_EAPDBTL_SET, logicLevel))
 			result = false;
 	}
-	iterator->release();
+
+	IORecursiveLockUnlock(g_lock);
 
 	return result;
 }
@@ -416,8 +468,10 @@ void CodecCommander::performCodecReset()
 
     if (!mColdBoot)
 	{
+		IORecursiveLockLock(g_lock);
 		mIntelHDA->resetCodec();
         mEAPDPoweredDown = true;
+		IORecursiveLockUnlock(g_lock);
     }
 }
 
@@ -526,11 +580,12 @@ const char* CodecCommander::getPowerState(IOAudioDevicePowerState powerState)
 
 
 /******************************************************************************
- * CodecCommander_PowerHook - for tracking power states of IOAudioDevice nodes
+ * CodecCommanderPowerHook - for tracking power states of IOAudioDevice nodes
  ******************************************************************************/
 
 OSDefineMetaClassAndStructors(CodecCommanderPowerHook, IOService)
 
+#ifdef DEBUG
 bool CodecCommanderPowerHook::init(OSDictionary *dictionary)
 {
 	DebugLog("CodecCommanderPowerHook::init\n");
@@ -547,6 +602,7 @@ IOService* CodecCommanderPowerHook::probe(IOService* provider, SInt32* score)
 
 	return super::probe(provider, score);
 }
+#endif //DEBUG
 
 bool CodecCommanderPowerHook::start(IOService *provider)
 {
@@ -558,12 +614,16 @@ bool CodecCommanderPowerHook::start(IOService *provider)
 		return false;
 	}
 
-	// don't attempt to AppleHDADriver for vendor 0x8086
+	// load configuration based on codec
+	IORecursiveLockLock(g_lock);
 	IntelHDA intelHDA(provider, PIO);
 	Configuration config(this->getProperty(kCodecProfile), &intelHDA, kCodecCommanderPowerHookKey);
+	IORecursiveLockUnlock(g_lock);
+
+	// certain codecs are disabled (0x8086 for Intel HDMI, for example)
 	if (config.getDisable())
 	{
-		DebugLog("no attempt to hook IOAudioDevice due to codec profile Disable flag\n");
+		AlwaysLog("no attempt to hook IOAudioDevice due to codec profile Disable flag\n");
 		return false;
 	}
 
@@ -631,4 +691,111 @@ IOReturn CodecCommanderPowerHook::setPowerState(unsigned long powerStateOrdinal,
 		return mCodecCommander->setPowerStateExternal(powerStateOrdinal, policyMaker);
 
 	return IOPMAckImplied;
+}
+
+/******************************************************************************
+ * CodecCommanderProbeInit - for hardware initialization at probe time
+ ******************************************************************************/
+
+OSDefineMetaClassAndStructors(CodecCommanderProbeInit, IOService)
+
+static UInt32 getNumberFromArray(OSArray* array, unsigned index)
+{
+	OSNumber* num = OSDynamicCast(OSNumber, array->getObject(index));
+	if (!num)
+		return (UInt32)-1;
+	return num->unsigned32BitValue();
+}
+
+IOService* CodecCommanderProbeInit::probe(IOService* provider, SInt32* score)
+{
+	DebugLog("CodecCommanderProbeInit::probe\n");
+
+	IORecursiveLockLock(g_lock);
+
+	IntelHDA intelHDA(provider, PIO);
+	DebugLog("ProbeInit2 codec(pre-init) 0x%08x\n", intelHDA.getCodecVendorId());
+
+	if (!intelHDA.initialize())
+	{
+		AlwaysLog("ProbeInit2 intelHDA.initialize failed\n");
+		IORecursiveLockUnlock(g_lock);
+		return NULL;
+	}
+
+	UInt32 layoutID = intelHDA.getLayoutID();
+	if (-1 == layoutID)
+	{
+		IORecursiveLockUnlock(g_lock);
+		return NULL;
+	}
+
+	DebugLog("ProbeInit2 codec 0x%08x\n", intelHDA.getCodecVendorId());
+
+	Configuration config(this->getProperty(kCodecProfile), &intelHDA, kCodecCommanderProbeInitKey);
+
+	// send any verbs in "Custom Commands"
+	int commandsSent = 0;
+	OSArray* commands = config.getCustomCommands();
+	unsigned count = commands->getCount();
+	for (unsigned i = 0; i < count; i++)
+	{
+		OSData* data = (OSData*)commands->getObject(i);
+		CustomCommand* customCommand = (CustomCommand*)data->getBytesNoCopy();
+		if (-1 == customCommand->layoutID || layoutID == customCommand->layoutID)
+		{
+			for (int i = 0; i < customCommand->CommandCount; i++)
+			{
+				DebugLog("--> custom probe command 0x%08x\n", customCommand->Commands[i]);
+				intelHDA.sendCommand(customCommand->Commands[i]);
+			}
+			commandsSent++;
+		}
+	}
+
+	if (commandsSent)
+		AlwaysLog("CodecCommanderProbeInit sent %d command(s) during probe (0x%08x)\n", commandsSent, intelHDA.getCodecVendorId());
+
+	// configure pin defaults from "PinConfigDefault"
+	int pinConfigsSet = 0;
+	if (OSArray* pinConfigs = config.getPinConfigDefault())
+	{
+		count = pinConfigs->getCount();
+		for (unsigned i = 0; i < count; i++)
+		{
+			OSDictionary* dict = OSDynamicCast(OSDictionary, pinConfigs->getObject(i));
+			if (!dict) continue;
+			unsigned id = -1;
+			if (OSNumber* num = OSDynamicCast(OSNumber, dict->getObject("LayoutID")))
+				id = num->unsigned32BitValue();
+			if ((UInt32)-1 == id || layoutID == id)
+			{
+				OSArray* pins = OSDynamicCast(OSArray, dict->getObject("PinConfigs"));
+				if (!pins) continue;
+				unsigned count = pins->getCount();
+				if (count & 1) continue;
+				for (int i = 0; i < count; i += 2)
+				{
+					UInt32 node = getNumberFromArray(pins, i);
+					if ((UInt32)-1 != node)
+					{
+						UInt32 config = getNumberFromArray(pins, i+1);
+						DebugLog("--> custom pin config, node=0x%02x : 0x%08x\n", node, config);
+						intelHDA.sendCommand(node, HDA_VERB_SET_CONFIG_DEFAULT_BYTES_0, config>>0);
+						intelHDA.sendCommand(node, HDA_VERB_SET_CONFIG_DEFAULT_BYTES_1, config>>8);
+						intelHDA.sendCommand(node, HDA_VERB_SET_CONFIG_DEFAULT_BYTES_2, config>>16);
+						intelHDA.sendCommand(node, HDA_VERB_SET_CONFIG_DEFAULT_BYTES_3, config>>24);
+						pinConfigsSet++;
+					}
+				}
+			}
+		}
+	}
+
+	if (pinConfigsSet)
+		AlwaysLog("CodecCommanderProbeInit set %d pinconfig(s) during probe (0x%08x)\n", pinConfigsSet, intelHDA.getCodecVendorId());
+
+	IORecursiveLockUnlock(g_lock);
+
+	return NULL;
 }
