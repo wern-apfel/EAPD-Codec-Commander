@@ -23,7 +23,7 @@ Read the commit log for an idea on contributions from Dolnor, the-darkvoid, and 
 
 Downloads are available on Bitbucket:
 
-https://bitbucket.org/RehabMan/os-x-eapd-codec-commander/downloads
+https://bitbucket.org/RehabMan/os-x-eapd-codec-commander/downloads/
 
 
 ### Source Code:
