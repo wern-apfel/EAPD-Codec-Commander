@@ -16,9 +16,6 @@
 		D4FA53E11A07C8E1000DD257 /* Configuration.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D4FA53E01A07C8E1000DD257 /* Configuration.cpp */; };
 		D4FB21F71A0CEBE1005D6019 /* IntelHDA.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D4FB21F61A0CEBE1005D6019 /* IntelHDA.cpp */; };
 		D4FD9E041A039E550095AA5A /* IntelHDA.h in Headers */ = {isa = PBXBuildFile; fileRef = D4FD9E031A039E550095AA5A /* IntelHDA.h */; };
-		ED10E3AB1E44D97D00EB1C3C /* SSDT-ALC256.dsl in Resources */ = {isa = PBXBuildFile; fileRef = ED10E3A71E44D97D00EB1C3C /* SSDT-ALC256.dsl */; };
-		ED10E3AC1E44D97D00EB1C3C /* SSDT-ALC298a.dsl in Resources */ = {isa = PBXBuildFile; fileRef = ED10E3A81E44D97D00EB1C3C /* SSDT-ALC298a.dsl */; };
-		ED10E3AD1E44D97D00EB1C3C /* SSDT-ALC298.dsl in Resources */ = {isa = PBXBuildFile; fileRef = ED10E3A91E44D97D00EB1C3C /* SSDT-ALC298.dsl */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -264,9 +261,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				ED10E3AC1E44D97D00EB1C3C /* SSDT-ALC298a.dsl in Resources */,
-				ED10E3AD1E44D97D00EB1C3C /* SSDT-ALC298.dsl in Resources */,
-				ED10E3AB1E44D97D00EB1C3C /* SSDT-ALC256.dsl in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
