@@ -16,6 +16,9 @@
 		D4FA53E11A07C8E1000DD257 /* Configuration.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D4FA53E01A07C8E1000DD257 /* Configuration.cpp */; };
 		D4FB21F71A0CEBE1005D6019 /* IntelHDA.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D4FB21F61A0CEBE1005D6019 /* IntelHDA.cpp */; };
 		D4FD9E041A039E550095AA5A /* IntelHDA.h in Headers */ = {isa = PBXBuildFile; fileRef = D4FD9E031A039E550095AA5A /* IntelHDA.h */; };
+		ED10E3AB1E44D97D00EB1C3C /* SSDT-ALC256.dsl in Resources */ = {isa = PBXBuildFile; fileRef = ED10E3A71E44D97D00EB1C3C /* SSDT-ALC256.dsl */; };
+		ED10E3AC1E44D97D00EB1C3C /* SSDT-ALC298a.dsl in Resources */ = {isa = PBXBuildFile; fileRef = ED10E3A81E44D97D00EB1C3C /* SSDT-ALC298a.dsl */; };
+		ED10E3AD1E44D97D00EB1C3C /* SSDT-ALC298.dsl in Resources */ = {isa = PBXBuildFile; fileRef = ED10E3A91E44D97D00EB1C3C /* SSDT-ALC298.dsl */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -52,6 +55,9 @@
 		D4FB21F61A0CEBE1005D6019 /* IntelHDA.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IntelHDA.cpp; sourceTree = "<group>"; };
 		D4FB21F81A0CED3E005D6019 /* Common.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Common.h; sourceTree = "<group>"; };
 		D4FD9E031A039E550095AA5A /* IntelHDA.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = IntelHDA.h; sourceTree = "<group>"; usesTabs = 1; };
+		ED10E3A71E44D97D00EB1C3C /* SSDT-ALC256.dsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "SSDT-ALC256.dsl"; sourceTree = "<group>"; };
+		ED10E3A81E44D97D00EB1C3C /* SSDT-ALC298a.dsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "SSDT-ALC298a.dsl"; sourceTree = "<group>"; };
+		ED10E3A91E44D97D00EB1C3C /* SSDT-ALC298.dsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "SSDT-ALC298.dsl"; sourceTree = "<group>"; };
 		ED1EDDF21CC7E2700004F8F0 /* SSDT-ALC280.dsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "SSDT-ALC280.dsl"; sourceTree = "<group>"; };
 		ED789AED1CFA1A840067F666 /* gen_ahhcd.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = gen_ahhcd.sh; sourceTree = "<group>"; };
 		ED789AEE1CFA1A840067F666 /* extract_hda.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = extract_hda.sh; sourceTree = "<group>"; };
@@ -88,8 +94,11 @@
 			children = (
 				849F78D71ACFC03600389EDA /* makefile */,
 				D42D3C0F1A595B8D006C4C8C /* README.md */,
+				ED10E3A71E44D97D00EB1C3C /* SSDT-ALC256.dsl */,
 				ED1EDDF21CC7E2700004F8F0 /* SSDT-ALC280.dsl */,
 				84E686211C02AE6900638613 /* SSDT-ALC283.dsl */,
+				ED10E3A91E44D97D00EB1C3C /* SSDT-ALC298.dsl */,
+				ED10E3A81E44D97D00EB1C3C /* SSDT-ALC298a.dsl */,
 				EDA1E4181C8DC4AD009C880D /* SSDT-ALC668.dsl */,
 				0C4B238314598AD20080D960 /* CodecCommander */,
 				D42D3C061A59558C006C4C8C /* CodecCommanderClient */,
@@ -255,6 +264,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				ED10E3AC1E44D97D00EB1C3C /* SSDT-ALC298a.dsl in Resources */,
+				ED10E3AD1E44D97D00EB1C3C /* SSDT-ALC298.dsl in Resources */,
+				ED10E3AB1E44D97D00EB1C3C /* SSDT-ALC256.dsl in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -1,4 +1,4 @@
-// This SSDT demonstrates a custom configuration for ALC283.
+// This SSDT demonstrates a custom configuration for ALC298.
 // It is the same data that is currently in the Info.plist
 
 // If you had a codec that needed the same configuration, you could
@@ -10,7 +10,6 @@
 DefinitionBlock ("", "SSDT", 1, "hack", "ALC298", 0)
 {
     External(_SB.PCI0.HDEF, DeviceObj)
-    
     Name(_SB.PCI0.HDEF.RMCF, Package()
     {
         "CodecCommander", Package()
