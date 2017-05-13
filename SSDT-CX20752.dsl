@@ -1,8 +1,10 @@
 // SSDT to correct some problems headphone/mic on CX20752.
 //
+// Note: For use with the Anti-pop patches (seee RehabMan NUC repo)
+//
 // created by nayeweiyang/XuWang
 
-DefinitionBlock ("", "SSDT", 1, "XuWang", "CX20752", 0)
+DefinitionBlock ("", "SSDT", 1, "hack", "CX20752", 0)
 {
     External(_SB.PCI0.HDEF, DeviceObj)
     
@@ -31,7 +33,11 @@ DefinitionBlock ("", "SSDT", 1, "XuWang", "CX20752", 0)
                 },
 
             },
+            "Perform Reset", ">n",
+            "Perform Reset on External Wake", ">n",
         },
     })
 }
+//EOF
+
 
