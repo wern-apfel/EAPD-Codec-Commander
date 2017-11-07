@@ -183,6 +183,8 @@
 				<string>Realtek ALC283,etc</string>
 				<key>10ec_0235</key>
 				<string>Realtek ALC283,etc</string>
+				<key>10ec_0236</key>
+				<string>Realtek ALC283,etc</string>
 				<key>10ec_0282</key>
 				<string>Realtek ALC283,etc</string>
 				<key>10ec_0283</key>
@@ -199,7 +201,19 @@
 							<key>Comment</key>
 							<string>Node 0x1a - Pin Control (In Enable / VRefEn)</string>
 							<key>On Init</key>
+							<true/>
+							<key>On Sleep</key>
 							<false/>
+							<key>On Wake</key>
+							<true/>
+						</dict>
+						<dict>
+							<key>Command</key>
+							<data>AVcIgw==</data>
+							<key>Comment</key>
+							<string>0x15 SET_UNSOLICITED_ENABLE 0x83</string>
+							<key>On Init</key>
+							<true/>
 							<key>On Sleep</key>
 							<false/>
 							<key>On Wake</key>

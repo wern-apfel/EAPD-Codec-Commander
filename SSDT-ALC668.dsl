@@ -13,7 +13,6 @@
 DefinitionBlock ("", "SSDT", 1, "hack", "ALC668", 0)
 {
     External(_SB.PCI0.HDEF, DeviceObj)
-    
     Name(_SB.PCI0.HDEF.RMCF, Package()
     {
         "CodecCommander", Package()

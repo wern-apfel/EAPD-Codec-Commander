@@ -1,13 +1,7 @@
-// This SSDT demonstrates a custom configuration for ALC283.
-// It is the same data that is currently in the Info.plist
+// CodecCommander configuration for ALC256
+// From: https://github.com/vbourachot/XPS13-9350-OSX/blob/master/ssdt/SSDT-ALC256.dsl
 
-// If you had a codec that needed the same configuration, you could
-// load this SSDT in order to implement it without modifying the kext.
-// It will override the defaults specfied by the CodecCommander Info.plist
-
-// Customize to suit your needs.
-
-DefinitionBlock ("", "SSDT", 1, "hack", "ALC283", 0)
+DefinitionBlock ("", "SSDT", 1, "hack", "ALC256", 0x00003000)
 {
     External(_SB.PCI0.HDEF, DeviceObj)
     Name(_SB.PCI0.HDEF.RMCF, Package()
@@ -29,6 +23,22 @@ DefinitionBlock ("", "SSDT", 1, "hack", "ALC283", 0)
                 {
                     // 0x21 SET_UNSOLICITED_ENABLE 0x83
                     "Command", Buffer() { 0x02, 0x17, 0x08, 0x83 },
+                    "On Init", ">y",
+                    "On Sleep", ">n",
+                    "On Wake", ">y",
+                },
+                Package()
+                {
+                    // 0x20 SET_COEF_INDEX 0x36
+                    "Command", Buffer() { 0x02, 0x05, 0x00, 0x36 },
+                    "On Init", ">y",
+                    "On Sleep", ">n",
+                    "On Wake", ">y",
+                },
+                Package()
+                {
+                    // 0x20 SET_PROC_COEF 0x1737
+                    "Command", Buffer() { 0x02, 0x04, 0x17, 0x37 },
                     "On Init", ">y",
                     "On Sleep", ">n",
                     "On Wake", ">y",

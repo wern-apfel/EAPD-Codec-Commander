@@ -1,4 +1,4 @@
-// This SSDT demonstrates a custom configuration for ALC283.
+// This SSDT demonstrates a custom configuration for ALC298.
 // It is the same data that is currently in the Info.plist
 
 // If you had a codec that needed the same configuration, you could
@@ -7,7 +7,7 @@
 
 // Customize to suit your needs.
 
-DefinitionBlock ("", "SSDT", 1, "hack", "ALC283", 0)
+DefinitionBlock ("", "SSDT", 1, "hack", "ALC298", 0)
 {
     External(_SB.PCI0.HDEF, DeviceObj)
     Name(_SB.PCI0.HDEF.RMCF, Package()
@@ -19,8 +19,16 @@ DefinitionBlock ("", "SSDT", 1, "hack", "ALC283", 0)
                 Package(){}, // signifies Array instead of Dictionary
                 Package()
                 {
-                    // 0x19 SET_PIN_WIDGET_CONTROL 0x25
-                    "Command", Buffer() { 0x01, 0x97, 0x07, 0x25 },
+                    // 0x18 SET_PIN_WIDGET_CONTROL 0x22
+                    "Command", Buffer() { 0x01, 0x87, 0x07, 0x22 },
+                    "On Init", ">y",
+                    "On Sleep", ">n",
+                    "On Wake", ">y",
+                },
+                Package()
+                {
+                    // 0x1a SET_PIN_WIDGET_CONTROL 0x23
+                    "Command", Buffer() { 0x01, 0xa7, 0x07, 0x23 },
                     "On Init", ">y",
                     "On Sleep", ">n",
                     "On Wake", ">y",
