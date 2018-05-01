@@ -55,6 +55,8 @@ DefinitionBlock ("", "SSDT", 1, "hack", "ALC668", 0)
                     "On Wake", ">n",
                 },
             },
+            //"Perform Reset", ">n", // enable if using AppleALC
+            //"Perform Reset on External Wake", ">n", // enable if using AppleALC
         },
     })
 }
