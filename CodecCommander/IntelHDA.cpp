@@ -363,9 +363,15 @@ UInt32 IntelHDA::getLayoutID()
     UInt32 layoutID = -1;
     if (mDevice)
     {
-        OSData* data = OSDynamicCast(OSData, mDevice->getProperty("layout-id"));
+        OSData* data = OSDynamicCast(OSData, mDevice->getProperty("alc-layout-id"));
         if (data && data->getLength() == sizeof(UInt32))
             memcpy(&layoutID, data->getBytesNoCopy(), sizeof(UInt32));
+        else
+        {
+            data = OSDynamicCast(OSData, mDevice->getProperty("layout-id"));
+            if (data && data->getLength() == sizeof(UInt32))
+                memcpy(&layoutID, data->getBytesNoCopy(), sizeof(UInt32));
+        }
     }
     return layoutID;
 }
