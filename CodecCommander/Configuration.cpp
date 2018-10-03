@@ -387,9 +387,17 @@ Configuration::Configuration(OSObject* codecProfiles, IntelHDA* intelHDA, const 
     // Get delay for sending the verb
     mSendDelay = getIntegerValue(config, kSendDelay, 300);
 
-    // Determine if perform reset is requested (Defaults to true)
-    mPerformReset = getBoolValue(config, kPerformReset, true);
-    mPerformResetOnExternalWake = getBoolValue(config, kPerformResetOnExternalWake, true);
+    // auto detect AppleHDA to turn off the "Perform Reset*" options
+    // normally they are default true, but not if AppleALC is used
+    mPerformReset = true;
+    mPerformResetOnExternalWake = true;
+    if (IORegistryEntry* entry = IORegistryEntry::fromPath("IOService:/IOResources/AppleALC"))
+    {
+        mPerformReset = mPerformResetOnExternalWake = false;
+        entry->release();
+    }
+    mPerformReset = getBoolValue(config, kPerformReset, mPerformReset);
+    mPerformResetOnExternalWake = getBoolValue(config, kPerformResetOnExternalWake, mPerformResetOnExternalWake);
 
     // Determine if perform reset is requested (Defaults to true)
     mPerformResetOnEAPDFail = getBoolValue(config, kPerformResetOnEAPDFail, true);

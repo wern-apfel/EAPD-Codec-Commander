@@ -49,10 +49,6 @@
 					<integer>3000</integer>
 					<key>Custom Commands</key>
 					<array/>
-					<key>Perform Reset</key>
-					<true/>
-					<key>Perform Reset on External Wake</key>
-					<true/>
 					<key>Perform Reset on EAPD Fail</key>
 					<false/>
 					<key>Send Delay</key>

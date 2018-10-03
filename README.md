@@ -5,6 +5,10 @@ This repo contains a fork of TimeWalker's original here: https://github.com/Doln
 
 The main changes are:
 
+- kernel flag -ccoff disables the main CodeCommander functionality
+
+- kernel flag -ccpioff disables ACPI-based CodecCommanderProbeInit configuration (using both -ccoff and -ccpioff is like removing CodecCommander)
+
 - custom configuration with ACPI RMCF object.
 
 See SSDT-ALC283.dsl for an example configuration override.  The data there is the same as for the Info.plist data for ALC283.  But you can customize it for your own codec if needed.
@@ -187,6 +191,25 @@ By default HDMI codecs re disabled in order to prevent CC attaching on them. If 
 				<string>Disabled HDMI</string>				
 
 ### Changelog
+
+Oct 3, 2018 v2.7.1
+
+- Detect AppleALC for automatic disable of "Perform Reset" and "Perform Reset on External Wake" (so SSDT-AppleALC.aml not needed usually)
+
+- Added support for AppleALC by reading alc-layout-id property (if present) for layout-id determination
+
+- Added kernel flags -ccoff and -ccpioff
+
+
+May 1, 2017 v2.6.3
+
+- Added ALC236 configuration (same as ALC283)
+
+
+Jul 21, 2016 v2.6.2
+
+- Added ALC292 configuration (thanks Joshua Seltzer)
+
 
 May 28, 2016 v2.6.1
 

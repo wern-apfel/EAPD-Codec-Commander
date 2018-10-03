@@ -57,6 +57,8 @@ distribute:
 	mkdir ./Distribute
 	cp -R $(BUILDDIR)/Debug ./Distribute
 	cp -R $(BUILDDIR)/Release ./Distribute
+	cp README.md ./Distribute
+	cp LICENSE ./Distribute
 	mv ./Distribute/Debug/CodecCommanderClient ./Distribute/Debug/hda-verb
 	mv ./Distribute/Release/CodecCommanderClient ./Distribute/Release/hda-verb
 	find ./Distribute -path *.DS_Store -delete

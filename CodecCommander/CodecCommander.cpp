@@ -126,8 +126,14 @@ IOAudioDevice* CodecCommander::getAudioDevice()
  ******************************************************************************/
 bool CodecCommander::init(OSDictionary *dictionary)
 {
-    DebugLog("Initializing\n");
-    
+	DebugLog("Initializing\n");
+	uint32_t flag;
+	if (PE_parse_boot_argn("-ccoff", &flag, sizeof(flag)))
+	{
+		AlwaysLog("stopping due to -ccoff kernel flag\n");
+		return false;
+	}
+
     if (!super::init(dictionary))
         return false;
 	
@@ -589,6 +595,12 @@ OSDefineMetaClassAndStructors(CodecCommanderPowerHook, IOService)
 bool CodecCommanderPowerHook::init(OSDictionary *dictionary)
 {
 	DebugLog("CodecCommanderPowerHook::init\n");
+	uint32_t flag;
+	if (PE_parse_boot_argn("-ccoff", &flag, sizeof(flag)))
+	{
+		AlwaysLog("stopping due to -ccoff kernel flag\n");
+		return false;
+	}
 
 	if (!super::init(dictionary))
 		return false;
@@ -710,6 +722,12 @@ static UInt32 getNumberFromArray(OSArray* array, unsigned index)
 IOService* CodecCommanderProbeInit::probe(IOService* provider, SInt32* score)
 {
 	DebugLog("CodecCommanderProbeInit::probe\n");
+	uint32_t flag;
+	if (PE_parse_boot_argn("-ccpioff", &flag, sizeof(flag)))
+	{
+		AlwaysLog("CodecCommanderProbeInit stopping due to -ccpioff kernel flag\n");
+		return NULL;
+	}
 
 	IORecursiveLockLock(g_lock);
 
