@@ -9,7 +9,7 @@
 // This data provided by @zirkaiva.
 // See here: http://www.tonymacx86.com/el-capitan-laptop-guides/175935-guide-lenovo-t430-el-capitan-34.html#post1239765
 
-DefinitionBlock ("", "SSDT", 1, "hack", "ALC280", 0)
+DefinitionBlock ("", "SSDT", 1, "hack", "_ALC280", 0)
 {
     External(_SB.PCI0.HDEF, DeviceObj)
     Name(_SB.PCI0.HDEF.RMCF, Package()

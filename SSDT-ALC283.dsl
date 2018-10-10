@@ -7,7 +7,7 @@
 
 // Customize to suit your needs.
 
-DefinitionBlock ("", "SSDT", 1, "hack", "ALC283", 0)
+DefinitionBlock ("", "SSDT", 1, "hack", "_ALC283", 0)
 {
     External(_SB.PCI0.HDEF, DeviceObj)
     Name(_SB.PCI0.HDEF.RMCF, Package()
