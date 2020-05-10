@@ -5,7 +5,7 @@ This repo contains a fork of TimeWalker's original here: https://github.com/Doln
 
 The main changes are:
 
-- kernel flag -ccoff disables the main CodeCommander functionality
+- kernel flag -ccoff disables the main CodecCommander functionality
 
 - kernel flag -ccpioff disables ACPI-based CodecCommanderProbeInit configuration (using both -ccoff and -ccpioff is like removing CodecCommander)
 
