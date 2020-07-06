@@ -200,7 +200,7 @@ bool IntelHDA::initialize(bool regMapOnly)
 
     // avoid logging HDMI audio (except in DEBUG build) as it is disabled anyway
 #ifndef DEBUG
-    if ((vendor != 0x8086) && (vendor != 0x1001))
+    if ((vendor != 0x8086) && (vendor != 0x1002))
 #endif
     {
         AlwaysLog("....CodecVendor Id: 0x%08x\n", mCodecVendorId);
