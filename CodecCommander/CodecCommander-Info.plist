@@ -62,10 +62,12 @@
 				<string>Realtek ALC892 desktop</string>
 				<key>10ec_0900</key>
 				<string>Realtek ALC1150</string>
-				<key>1102_0011_HDA_1458_a036</key>
-				<string>Creative CA0132, R3Di</string>
 				<key>1102_0011_HDA_1458_a016</key>
 				<string>Creative CA0132, R3Di</string>
+				<key>1102_0011_HDA_1458_a036</key>
+				<string>Creative CA0132, R3Di</string>
+				<key>1102_0011_HDA_1458_a046</key>
+				<string>Creative CA0132, ZxRi</string>
 				<key>8086</key>
 				<string>Disabled HDMI</string>
 				<key>Creative CA0132, R3Di</key>
@@ -74,7 +76,9 @@
 					<array>
 						<dict>
 							<key>Command</key>
-							<data>AVcKAQ==</data>
+							<data>
+							AVcKAQ==
+							</data>
 							<key>Comment</key>
 							<string>Enable Extensions</string>
 							<key>On Init</key>
@@ -86,7 +90,9 @@
 						</dict>
 						<dict>
 							<key>Command</key>
-							<data>AVcPAQ==</data>
+							<data>
+							AVcPAQ==
+							</data>
 							<key>Comment</key>
 							<string>Bypass DSP DMA</string>
 							<key>On Init</key>
@@ -98,7 +104,9 @@
 						</dict>
 						<dict>
 							<key>Command</key>
-							<data>ABcXHg==</data>
+							<data>
+							ABcXHg==
+							</data>
 							<key>Comment</key>
 							<string>0x1 SET_GPIO_DIRECTION</string>
 							<key>On Init</key>
@@ -110,7 +118,9 @@
 						</dict>
 						<dict>
 							<key>Command</key>
-							<data>ABcWHw==</data>
+							<data>
+							ABcWHw==
+							</data>
 							<key>Comment</key>
 							<string>0x1 SET_GPIO_MASK</string>
 							<key>On Init</key>
@@ -122,7 +132,9 @@
 						</dict>
 						<dict>
 							<key>Command</key>
-							<data>ABcVFA==</data>
+							<data>
+							ABcVFA==
+							</data>
 							<key>Comment</key>
 							<string>0x1 SET_GPIO_DATA</string>
 							<key>On Init</key>
@@ -134,7 +146,9 @@
 						</dict>
 						<dict>
 							<key>Command</key>
-							<data>AVcXDQ==</data>
+							<data>
+							AVcXDQ==
+							</data>
 							<key>Comment</key>
 							<string>0x15 </string>
 							<key>On Init</key>
@@ -146,7 +160,9 @@
 						</dict>
 						<dict>
 							<key>Command</key>
-							<data>AVcYJA==</data>
+							<data>
+							AVcYJA==
+							</data>
 							<key>Comment</key>
 							<string>0x15 </string>
 							<key>On Init</key>
@@ -158,7 +174,9 @@
 						</dict>
 						<dict>
 							<key>Command</key>
-							<data>ARcHRA==</data>
+							<data>
+							ARcHRA==
+							</data>
 							<key>Comment</key>
 							<string>0x11</string>
 							<key>On Init</key>
@@ -170,9 +188,189 @@
 						</dict>
 						<dict>
 							<key>Command</key>
-							<data>AScHJA==</data>
+							<data>
+							AScHJA==
+							</data>
 							<key>Comment</key>
 							<string>0x12</string>
+							<key>On Init</key>
+							<false/>
+							<key>On Sleep</key>
+							<false/>
+							<key>On Wake</key>
+							<true/>
+						</dict>
+					</array>
+					<key>Sleep Nodes</key>
+					<false/>
+					<key>Update Nodes</key>
+					<false/>
+				</dict>
+				<key>Creative CA0132, ZxRi</key>
+				<dict>
+					<key>Custom Commands</key>
+					<array>
+						<dict>
+							<key>Command</key>
+							<data>
+							AVcKAQ==
+							</data>
+							<key>Comment</key>
+							<string>Enable Extensions</string>
+							<key>On Init</key>
+							<false/>
+							<key>On Sleep</key>
+							<false/>
+							<key>On Wake</key>
+							<true/>
+						</dict>
+						<dict>
+							<key>Command</key>
+							<data>
+							AVcPAQ==
+							</data>
+							<key>Comment</key>
+							<string>Bypass DSP DMA</string>
+							<key>On Init</key>
+							<false/>
+							<key>On Sleep</key>
+							<false/>
+							<key>On Wake</key>
+							<true/>
+						</dict>
+						<dict>
+							<key>Command</key>
+							<data>
+							ABeQMw==
+							</data>
+							<key>Comment</key>
+							<string>Discover GPIOs</string>
+							<key>On Init</key>
+							<false/>
+							<key>On Sleep</key>
+							<false/>
+							<key>On Wake</key>
+							<true/>
+						</dict>
+						<dict>
+							<key>Command</key>
+							<data>
+							ABcXDw==
+							</data>
+							<key>Comment</key>
+							<string>0x1 SET_GPIO_DIRECTION</string>
+							<key>On Init</key>
+							<false/>
+							<key>On Sleep</key>
+							<false/>
+							<key>On Wake</key>
+							<true/>
+						</dict>
+						<dict>
+							<key>Command</key>
+							<data>
+							ABcWDw==
+							</data>
+							<key>Comment</key>
+							<string>0x1 SET_GPIO_MASK</string>
+							<key>On Init</key>
+							<false/>
+							<key>On Sleep</key>
+							<false/>
+							<key>On Wake</key>
+							<true/>
+						</dict>
+						<dict>
+							<key>Command</key>
+							<data>
+							ABcVDQ==
+							</data>
+							<key>Comment</key>
+							<string>0x1 SET_GPIO_DATA</string>
+							<key>On Init</key>
+							<false/>
+							<key>On Sleep</key>
+							<false/>
+							<key>On Wake</key>
+							<true/>
+						</dict>
+						<dict>
+							<key>Command</key>
+							<data>
+							AVcXGA==
+							</data>
+							<key>Comment</key>
+							<string>0x15 </string>
+							<key>On Init</key>
+							<false/>
+							<key>On Sleep</key>
+							<false/>
+							<key>On Wake</key>
+							<true/>
+						</dict>
+						<dict>
+							<key>Command</key>
+							<data>
+							AVcYFA==
+							</data>
+							<key>Comment</key>
+							<string>0x15 </string>
+							<key>On Init</key>
+							<false/>
+							<key>On Sleep</key>
+							<false/>
+							<key>On Wake</key>
+							<true/>
+						</dict>
+						<dict>
+							<key>Command</key>
+							<data>
+							AVcXGg==
+							</data>
+							<key>Comment</key>
+							<string>0x15 </string>
+							<key>On Init</key>
+							<false/>
+							<key>On Sleep</key>
+							<false/>
+							<key>On Wake</key>
+							<true/>
+						</dict>
+						<dict>
+							<key>Command</key>
+							<data>
+							AVcYkQ==
+							</data>
+							<key>Comment</key>
+							<string>0x15 </string>
+							<key>On Init</key>
+							<false/>
+							<key>On Sleep</key>
+							<false/>
+							<key>On Wake</key>
+							<true/>
+						</dict>
+						<dict>
+							<key>Command</key>
+							<data>
+							AVcXDQ==
+							</data>
+							<key>Comment</key>
+							<string>0x15 </string>
+							<key>On Init</key>
+							<false/>
+							<key>On Sleep</key>
+							<false/>
+							<key>On Wake</key>
+							<true/>
+						</dict>
+						<dict>
+							<key>Command</key>
+							<data>
+							AVcYJA==
+							</data>
+							<key>Comment</key>
+							<string>0x15 </string>
 							<key>On Init</key>
 							<false/>
 							<key>On Sleep</key>
@@ -220,7 +418,9 @@
 					<array>
 						<dict>
 							<key>Command</key>
-							<data>AgUABw==</data>
+							<data>
+							AgUABw==
+							</data>
 							<key>Comment</key>
 							<string>0x20 SET_COEF_INDEX 0x07</string>
 							<key>On Init</key>
@@ -232,7 +432,9 @@
 						</dict>
 						<dict>
 							<key>Command</key>
-							<data>AgR8sA==</data>
+							<data>
+							AgR8sA==
+							</data>
 							<key>Comment</key>
 							<string>0x20 SET_PROC_COEF 0x7CB0</string>
 							<key>On Init</key>
@@ -256,7 +458,9 @@
 					<array>
 						<dict>
 							<key>Command</key>
-							<data>AVcIgw==</data>
+							<data>
+							AVcIgw==
+							</data>
 							<key>Comment</key>
 							<string>0x15 SET_UNSOLICITED_ENABLE 0x83</string>
 							<key>On Init</key>
@@ -274,7 +478,9 @@
 					<array>
 						<dict>
 							<key>Command</key>
-							<data>AVcIgw==</data>
+							<data>
+							AVcIgw==
+							</data>
 							<key>Comment</key>
 							<string>0x15 SET_UNSOLICITED_ENABLE 0x83</string>
 							<key>On Init</key>
@@ -292,7 +498,9 @@
 					<array>
 						<dict>
 							<key>Command</key>
-							<data>AhcIgw==</data>
+							<data>
+							AhcIgw==
+							</data>
 							<key>Comment</key>
 							<string>0x21 SET_UNSOLICITED_ENABLE 0x83</string>
 							<key>On Init</key>
@@ -314,7 +522,9 @@
 					<array>
 						<dict>
 							<key>Command</key>
-							<data>AZcHJQ==</data>
+							<data>
+							AZcHJQ==
+							</data>
 							<key>Comment</key>
 							<string>0x19 SET_PIN_WIDGET_CONTROL 0x25</string>
 							<key>On Init</key>
@@ -326,7 +536,9 @@
 						</dict>
 						<dict>
 							<key>Command</key>
-							<data>AhcIgw==</data>
+							<data>
+							AhcIgw==
+							</data>
 							<key>Comment</key>
 							<string>0x21 SET_UNSOLICITED_ENABLE 0x83</string>
 							<key>On Init</key>
@@ -362,7 +574,9 @@
 						</dict>
 						<dict>
 							<key>Command</key>
-							<data>AVcIgw==</data>
+							<data>
+							AVcIgw==
+							</data>
 							<key>Comment</key>
 							<string>0x15 SET_UNSOLICITED_ENABLE 0x83</string>
 							<key>On Init</key>
@@ -382,7 +596,9 @@
 					<array>
 						<dict>
 							<key>Command</key>
-							<data>AVcIgw==</data>
+							<data>
+							AVcIgw==
+							</data>
 							<key>Comment</key>
 							<string>0x15 SET_UNSOLICITED_ENABLE 0x83</string>
 							<key>On Init</key>
@@ -394,7 +610,9 @@
 						</dict>
 						<dict>
 							<key>Command</key>
-							<data>AbcHIA==</data>
+							<data>
+							AbcHIA==
+							</data>
 							<key>Comment</key>
 							<string>Node 0x1b - Pin Control (In Enable)</string>
 							<key>On Init</key>
